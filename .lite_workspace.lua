@@ -1,0 +1,1 @@
+return {["type"]="leaf",["views"]={[1]={["type"]="doc",["text"]=false,["selection"]={[1]=106,[2]=57,[3]=106,[4]=57},["scroll"]={["x"]=0,["y"]=1526},["filename"]="nt/system32/ntoskrnl.lua",["active"]=true}},["active_view"]=1}

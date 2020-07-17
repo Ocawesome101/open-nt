@@ -23,7 +23,7 @@ ware change might be the cause. To fix the
 problem, contact your hardware manufacturer or    
 system administrator for assistance.              
                                                   
-Info:
+Info:                                             
 ]]
 
 local rootfs = component.proxy(...)
@@ -72,7 +72,7 @@ end
 local gpu = component.proxy(component.list("gpu")())
 local screen = component.list("screen")()
 gpu.bind(screen)
-local w,h=50,16
+local w,h=gpu.maxResolution()
 gpu.setResolution(w,h)
 local menu = {}
 gpu.fill(1,1,w,h," ")
@@ -106,9 +106,9 @@ menu[1].selected = true
 local sel = 1
 local acts = {
   [13] = function()
-    local ok, err = pcall(read_file, bcd[sel].file)
+    local ok, ret, err = pcall(read_file, bcd[sel].file)
     if ok then
-      ok, err = load(ok, "="..bcd[sel].file)
+      ok, err = load(ret, "="..bcd[sel].file)
     end
     if not ok then
       gpu.setForeground(0xFFFFFF)
@@ -120,13 +120,25 @@ local acts = {
       end
       while true do computer.pullSignal() end
     end
+    gpu.setForeground(0x000000)
     gpu.setBackground(0x000000)
-    gpu.fill(1,1,w,h," ")
+    gpu.fill(1, 1, w, h, " ")
     gpu.setForeground(0x000000)
     gpu.setBackground(0xbebebe)
     local msg = bcd[sel].message or string.format("Starting %s...", bcd[sel].name)
-    gpu.fill(1, 1, w, 1, " ")
+    gpu.fill(1, h, w, 1, " ")
     gpu.set((w // 2) - (#msg // 2), h, msg)
+    local ok, err = xpcall(ok, debug.traceback)
+    if not ok then
+      gpu.setForeground(0xFFFFFF)
+      gpu.setBackground(0x000000)
+      local i = 1
+      for line in (errmsg .. err):gsub("\t", "  "):gmatch("[^\n]+") do
+        gpu.set(1, i + 2, line)
+        i = i + 1
+      end
+      while true do computer.pullSignal() end
+    end
   end,
   [200] = function()
     if sel > 1 then
