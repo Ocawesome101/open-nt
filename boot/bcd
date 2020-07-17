@@ -1,0 +1,11 @@
+{
+  {
+    name = "OpenNT",
+    file = "/nt/system32/ntoskrnl.lua",
+    args = {
+      log = true,
+      services = true,
+      multiuser = true
+    }
+  }
+}
