@@ -20,7 +20,7 @@
 _G.nt = {} -- the kernel API
 
 nt.gpu = component.proxy(component.list("gpu")())
-nt.gpu.bind(component.list("screen")())
+nt.gpu.bind((component.list("screen")()))
 
 do
   local bsodtext = [[
@@ -34,13 +34,13 @@ error:
   local function bsod(err)
     local panic = bsodtext .. err
     nt.gpu.setForeground(0xFFFFFF)
-    nt.gpu.setBackground(0x0066FF)
+    nt.gpu.setBackground(nt.gpu.getDepth() > 1 and 0x0066FF or 0x000000)
     local w, h = nt.gpu.maxResolution()
     nt.gpu.setResolution(w, h)
     nt.gpu.fill(1, 1, w, h, " ")
     local y = 1
     for line in panic:gmatch("[^\n]+") do
-      nt.gpu.set(1, y, line)
+      nt.gpu.set(1, y, (line:gsub("\t", "  ")))
       y = y + 1
     end
     while true do
@@ -56,7 +56,7 @@ local ok, err = xpcall(function()
 
 -- kernel logger
 do
-  local y = 1
+  local y = 0
   local bmsg = "Starting OpenNT"
   local w, h = nt.gpu.maxResolution()
   nt.gpu.setForeground(0xFFFFFF)
@@ -64,32 +64,32 @@ do
   nt.gpu.fill(1, 1, w, h, " ")
   nt.gpu.setForeground(0x000000)
   nt.gpu.setBackground(0xbebebe)
-  nt.gpu.fill(1, 1, w, 1, " ")
-  nt.gpu.set((w // 2) - (#bmsg // 2), 1, bmsg)
+  nt.gpu.fill(1, h, w, 1, " ")
+  nt.gpu.set((w // 2) - (#bmsg // 2), h, bmsg)
   nt.gpu.setForeground(0xFFFFFF)
   nt.gpu.setBackground(0x000000)
-  function nt.KeLog(msg)
+  function nt.log(msg)
     for line in msg:gmatch("[^\n]+") do
       if y > h then
         y = h
-        nt.gpu.copy(1, 1, w, h-1, 0, -1)
-        nt.gpu.fill(1, h, w, 1, " ")
+        nt.gpu.copy(1, 1, w, h - 1, 0, -1)
+        nt.gpu.fill(1, h - 1, w, 1, " ")
       else
         y = y + 1
       end
-      nt.gpu.set(1, y, line)
+      nt.gpu.set(1, y, (line:gsub("\t", "  ")))
     end
   end
 end
 
 -- base boot-utils, overwritten later
-nt.KeLog("Stage 1: early boot")
+nt.log("Stage 1: early boot")
 
-nt.KeLog("Getting proxy for drive A:/")
+nt.log("Getting proxy for drive A:/")
 local addr = computer.getBootAddress()
 local A = component.proxy(addr)
 
-nt.KeLog("Initializing boot utilities")
+nt.log("Initializing boot utilities")
 local function read_file(file)
   local handle = assert(A.open(file))
   local data = ""
@@ -105,6 +105,23 @@ function loadfile(file, mode, env)
   local data = read_file(file)
   return load(data, "=" .. file, mode or "bt", env or _G)
 end
+
+local function run_file(f,...)
+  return loadfile(f)(...)
+end
+
+local function run_files(dir, log)
+  log = log or nt.log
+  local files = A.list(dir)
+  table.sort(files)
+  for _, file in ipairs(files) do
+    log(file)
+    run_file(dir .. "/" .. file)
+  end
+end
+
+nt.log("Loading base kernel")
+run_files("/nt/system32/ntoskrnl/", function(n) nt.log("Run file: " .. n:match("%d%d_(.+)%.lua")) end)
 
 end, debug.traceback) -- kernel code ends here
 
