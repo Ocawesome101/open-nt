@@ -1,4 +1,4 @@
--------------------------- OpenNT kernel: 00_base.lua --------------------------
+----------------------- OpenNT kernel: 04_shutdown.lua -------------------------
 -- Copyright (C) 2020 Ocawesome101                                            --
 --                                                                            --
 -- This program is free software: you can redistribute it and/or modify       --
@@ -15,6 +15,10 @@
 -- along with this program.  If not, see <https://www.gnu.org/licenses/>.     --
 --------------------------------------------------------------------------------
 
-nt.executive = {}
-
-
+do
+  local shutdown = computer.shutdown
+  function computer.shutdown(reboot)
+    nt.ke.fs.close_handles()
+    shutdown(reboot)
+  end
+end

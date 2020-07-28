@@ -18,9 +18,11 @@
 -- TODO: Possibly split into separate scripts if code gets too large (>~750 lines)?
 
 _G.nt = {} -- the kernel API
+nt.ki = {}
+nt.ke = {}
 
-nt.gpu = component.proxy(component.list("gpu")())
-nt.gpu.bind((component.list("screen")()))
+nt.ki.gpu = component.proxy(component.list("gpu")())
+nt.ki.gpu.bind((component.list("screen")()))
 
 do
   local bsodtext = [[
@@ -33,14 +35,14 @@ error:
 
   local function bsod(err)
     local panic = bsodtext .. err
-    nt.gpu.setForeground(0xFFFFFF)
-    nt.gpu.setBackground(nt.gpu.getDepth() > 1 and 0x0066FF or 0x000000)
-    local w, h = nt.gpu.maxResolution()
-    nt.gpu.setResolution(w, h)
-    nt.gpu.fill(1, 1, w, h, " ")
+    nt.ki.gpu.setForeground(0xFFFFFF)
+    nt.ki.gpu.setBackground(nt.ki.gpu.getDepth() > 1 and 0x0066FF or 0x000000)
+    local w, h = nt.ki.gpu.maxResolution()
+    nt.ki.gpu.setResolution(w, h)
+    nt.ki.gpu.fill(1, 1, w, h, " ")
     local y = 1
     for line in panic:gmatch("[^\n]+") do
-      nt.gpu.set(1, y, (line:gsub("\t", "  ")))
+      nt.ki.gpu.set(1, y, (line:gsub("\t", "  ")))
       y = y + 1
     end
     while true do
@@ -48,7 +50,7 @@ error:
     end
   end
 
-  nt.panic = bsod
+  nt.ki.panic = bsod
 end
 
 -- wrap most kernel code in a pcall
@@ -58,38 +60,38 @@ local ok, err = xpcall(function()
 do
   local y = 0
   local bmsg = "Starting OpenNT"
-  local w, h = nt.gpu.maxResolution()
-  nt.gpu.setForeground(0xFFFFFF)
-  nt.gpu.setBackground(0x000000)
-  nt.gpu.fill(1, 1, w, h, " ")
-  nt.gpu.setForeground(0x000000)
-  nt.gpu.setBackground(0xbebebe)
-  nt.gpu.fill(1, h, w, 1, " ")
-  nt.gpu.set((w // 2) - (#bmsg // 2), h, bmsg)
-  nt.gpu.setForeground(0xFFFFFF)
-  nt.gpu.setBackground(0x000000)
-  function nt.log(msg)
+  local w, h = nt.ki.gpu.maxResolution()
+  nt.ki.gpu.setForeground(0xFFFFFF)
+  nt.ki.gpu.setBackground(0x000000)
+  nt.ki.gpu.fill(1, 1, w, h, " ")
+  nt.ki.gpu.setForeground(0x000000)
+  nt.ki.gpu.setBackground(0xbebebe)
+  nt.ki.gpu.fill(1, h, w, 1, " ")
+  nt.ki.gpu.set((w // 2) - (#bmsg // 2), h, bmsg)
+  nt.ki.gpu.setForeground(0xFFFFFF)
+  nt.ki.gpu.setBackground(0x000000)
+  function nt.ki.log(msg)
     for line in msg:gmatch("[^\n]+") do
       if y > h then
         y = h
-        nt.gpu.copy(1, 1, w, h - 1, 0, -1)
-        nt.gpu.fill(1, h - 1, w, 1, " ")
+        nt.ki.gpu.copy(1, 1, w, h - 1, 0, -1)
+        nt.ki.gpu.fill(1, h - 1, w, 1, " ")
       else
         y = y + 1
       end
-      nt.gpu.set(1, y, (line:gsub("\t", "  ")))
+      nt.ki.gpu.set(1, y, (line:gsub("\t", "  ")))
     end
   end
 end
 
 -- base boot-utils, overwritten later
-nt.log("Stage 1: early boot")
+nt.ki.log("Stage 1: early boot")
 
-nt.log("Getting proxy for drive A:/")
+nt.ki.log("Getting proxy for drive A:/")
 local addr = computer.getBootAddress()
 local A = component.proxy(addr)
 
-nt.log("Initializing boot utilities")
+nt.ki.log("Initializing boot utilities")
 local function read_file(file)
   local handle = assert(A.open(file))
   local data = ""
@@ -111,7 +113,7 @@ local function run_file(f,...)
 end
 
 local function run_files(dir, log)
-  log = log or nt.log
+  log = log or nt.ki.log
   local files = A.list(dir)
   table.sort(files)
   for _, file in ipairs(files) do
@@ -120,13 +122,13 @@ local function run_files(dir, log)
   end
 end
 
-nt.log("Loading base kernel")
-run_files("/nt/system32/ntoskrnl/", function(n) nt.log("Run file: " .. n:match("%d%d_(.+)%.lua")) end)
+nt.ki.log("Loading base kernel")
+run_files("/nt/system32/ntoskrnl/", function(n) nt.ki.log("Run file: " .. n:match("%d%d_(.+)%.lua")) end)
 
 end, debug.traceback) -- kernel code ends here
 
 if not ok then
-  nt.panic(err)
+  nt.ki.panic(err)
 end
 
 while true do computer.pullSignal() end
