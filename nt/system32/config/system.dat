@@ -1,0 +1,11 @@
+-- OpenNT Registry version 0.5.0 --
+-- HKLM\System --
+{
+  currentcontrolset = {
+    ["hardware profiles"] = {
+      current = {
+        -- STUB
+      }
+    }
+  }
+}

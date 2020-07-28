@@ -55,7 +55,7 @@ do
 
   local function resolve(path)
     path = path:gsub("\\", "/")
-    local letter, file = path:match("(%d):(.+)")
+    local letter, file = path:match("(.):(.+)")
     letter = letter or (nt.ex.ps.info() or {data={env={DRIVE="A:"}}}).data.env.DRIVE:sub(1,1)
     file = file or path
     file = file:lower()
@@ -91,9 +91,6 @@ do
     local prx, path = resolve(file)
     if not prx then
       return nil, path
-    end
-    if not prx.exists(path) then
-      return nil, "File not found"
     end
     local handle, err = prx.open(path, mode)
     if not handle then

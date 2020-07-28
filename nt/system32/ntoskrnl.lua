@@ -15,8 +15,6 @@
 -- along with this program.  If not, see <https://www.gnu.org/licenses/>.     --
 --------------------------------------------------------------------------------
 
--- TODO: Possibly split into separate scripts if code gets too large (>~750 lines)?
-
 _G.nt = {} -- the kernel API
 nt.ki = {}
 nt.ke = {}
@@ -72,7 +70,7 @@ do
   nt.ki.gpu.setBackground(0x000000)
   function nt.ki.log(msg)
     for line in msg:gmatch("[^\n]+") do
-      if y > h then
+      if y > h - 1 then
         y = h
         nt.ki.gpu.copy(1, 1, w, h - 1, 0, -1)
         nt.ki.gpu.fill(1, h - 1, w, 1, " ")
