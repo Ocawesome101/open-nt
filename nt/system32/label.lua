@@ -1,4 +1,4 @@
--------------------------------- OpenNT cmd.lua --------------------------------
+-------------------------------- OpenNT label.lua ------------------------------
 -- Copyright (C) 2020 Ocawesome101                                            --
 --                                                                            --
 -- This program is free software: you can redistribute it and/or modify       --
@@ -15,41 +15,36 @@
 -- along with this program.  If not, see <https://www.gnu.org/licenses/>.     --
 --------------------------------------------------------------------------------
 
--- set up stdio
-do
-  if io.tmp_stdio then
-    io.tmp_stdio.stdout:write("Setting standard I/O.\n")
-    io.input(io.tmp_stdio.stdin)
-    io.output(io.tmp_stdio.stdout)
-    io.tmp_stdio = nil
-  end
-end
-
-os.setenv("DRIVE", os.getenv("DRIVE") or "A:")
-os.setenv("CD", os.getenv("CD") or "/")
 local cmd = require("cmdlib")
+local fs = require("fs")
+local args, opts = cmd.parse(...)
 
--- prompt replacements
-local prep = {
-  ["%$P"] = function() return (os.getenv("DRIVE") or "A:") .. (os.getenv("CD") or "/") end,
-  ["%$G"] = function() return ">" end
-}
-local function parseprompt(ppt)
-  for pat, rep in pairs(prep) do
-    ppt = ppt:gsub(pat, rep())
-  end
-  return ppt
+if #args == 0 then
+  args[1] = os.getenv("DRIVE")
 end
 
-while true do
-  local ppt = os.getenv("PROMPT") or "$P$G "
-  io.write(parseprompt(ppt))
-  local line = io.read():gsub("\n", "")
-  if #line > 0 then
-    local ok, err = cmd.execute(line)
-    if not ok then
-      print("\27[91m" .. err .. "\27[37m")
+local drv = args[1] or os.getenv("DRIVE")
+local prx = assert(fs.get(args[1]))
+
+print(string.format("Volume in drive %s is %s", drv, prx.getLabel() or prx.address:sub(1,3)))
+print(string.format("Volume serial number is %s", prx.address:sub(1,13)))
+local label
+if not args[2] then
+  io.write("Volume label (36 characters, ENTER for none)? ")
+  local data = io.read():gsub("\n", "")
+  if #data == 0 then
+    io.write("\nDelete current volume label (Y/N)? ")
+    local inp = io.read():gsub("\n", ""):lower()
+    if inp == "y" then
+      print("\nVolume label cleared")
+      prx.setLabel(nil)
     end
-    io.write("\n")
+    return
+  else
+    label = data
   end
+else
+  label = args[2]
 end
+prx.setLabel(label)
+print("\nVolume label set to " .. label)

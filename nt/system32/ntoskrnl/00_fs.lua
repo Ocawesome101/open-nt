@@ -214,7 +214,7 @@ do
   end
 
   function fs.concat(...)
-    return table.concat(table.pack(...), "/"):gsub("(/+)", "/")
+    return table.concat(table.pack(...), "\\"):gsub("([/\\]+)", "\\")
   end
 
   nt.ke.fs = fs
