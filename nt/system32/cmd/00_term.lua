@@ -1,5 +1,6 @@
----------------------- OpenNT Kernel: 05_interface.lua -------------------------
--- Load and execute interfaces based on BCD.                                  --
+--------------------- OpenNT interface 'cmd': 00_term.lua ----------------------
+-- A VT100 terminal. I know Windows doesn't actually have one, but it makes   --
+-- writing terminal code *so* much easier.                                    --
 -- Copyright (C) 2020 Ocawesome101                                            --
 --                                                                            --
 -- This program is free software: you can redistribute it and/or modify       --
@@ -17,23 +18,33 @@
 --------------------------------------------------------------------------------
 
 do
-  local fs = nt.ke.fs
-
-  local function exec_files(path)
-    nt.ki.log("Running files from " .. path)
-    local files = fs.list(path)
-    table.sort(files)
-    for k, file in ipairs(files) do
-      nt.ki.log("Interface: " .. file)
-      assert(loadfile(path .. file, nil, nt.ki.sandbox))()
+  local vt = require("vtemu")
+  local component = require("component")
+  local ps = require("ex.ps")
+  local vtread, vtwrite, vtclose
+  local stdout = {
+    read = function()
+      error("cannot read from standard output file")
+    end,
+    write = function(_, d)
+      return vtwrite(d)
     end
+  }
+  local stdin = {
+    read = function(_, ...)
+      return vtread(...)
+    end,
+    write = function()
+      error("cannot write to standard input file")
+    end
+  }
+  local function setstdio()
+    io.input(stdin)
+    io.output(stdout)
+    io.error(stdout)
   end
-
-  if fs.exists("A:/NT/System32/" .. nt.ki.flags.interface) then
-    nt.ki.flags.log = false
-    exec_files("A:/NT/System32/" .. nt.ki.flags.interface .. "/")
-  else
-    nt.ki.panic("Interface A:/NT/System32/" .. nt.ki.flags.interface .. " nonexistent")
-  end
-  nt.ex.ps.start()
+  setstdio()
+  vtread, vtwrite, vtclose = vt.session(component.gpu, component.gpu.getScreen())
+  io.tmp_stdio = {stdin = stdin, stdout = stdout}
+  io.write("\27[2JWelcome to OpenNT.\n")
 end

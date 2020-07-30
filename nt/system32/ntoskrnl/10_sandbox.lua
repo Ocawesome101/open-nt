@@ -16,12 +16,12 @@
 --------------------------------------------------------------------------------
 
 do
-  local sb = {
+  local sb
+  sb = {
     error = error,
     type = type,
     table = nt.ke.tcopy(table),
     rawequal = rawequal,
-    require = require,
     load = function(x,n,m,e) return load(x,n,m,e or sb) end,
     loadfile = function(f,n,e) return loadfile(f,n,e or sb) end,
     package = nt.ke.tcopy(package),
@@ -33,7 +33,7 @@ do
     select = select,
     pairs = pairs,
     utf8 = utf8 and nt.ke.tcopy(utf8),
-    io = nt.tcopy(io),
+    io = nt.ke.tcopy(io),
     checkArg = checkArg,
     tostring = tostring,
     ipairs = ipairs,
@@ -54,6 +54,33 @@ do
 
   sb._G = sb
   sb.table.copy = nt.ke.tcopy
+  sb.package.loaded.computer = nt.ke.tcopy(computer)
+  sb.package.loaded.component = nt.ke.tcopy(component)
+  sb.package.loaded.unicode = nt.ke.tcopy(unicode)
+  sb.package.loaded.win32 = nt.ke.tcopy(nt.win32)
+  sb.package.loaded["ex.ps"] = nt.ke.tcopy(nt.ex.ps)
+  sb.package.loaded["ex.cm"] = nt.ke.tcopy(nt.ex.cm)
+  sb.package.loaded.fs = nt.ke.tcopy(nt.ke.fs)
+  local loaded = sb.package.loaded
+  function sb.require(name)
+    checkArg(1, name, "string")
+    if loaded[name] then
+      return loaded[name]
+    else
+      local path, err = package.searchpath(name, package.path)
+      if not path then
+        error(string.format("module '%s' not found:\n\tno field package.preload['%s']\n%s", name, name, err))
+      end
+      local ok, err = loadfile(path, nil, nt.ki.sandbox)
+      if not ok then
+        error(string.format("error loading module '%s' from file '%s':\n\t%s", name, path, err))
+      end
+      local ret = ok()
+      assert(type(ret) == "function" or type(ret) == "table", string.format("module '%s' returned wrong type (expected 'function' or 'table', got '%s')", name, type(ret)))
+      package.loaded[name] = ret
+      return ret
+    end
+  end
 
   nt.ki.sandbox = sb
 end

@@ -38,6 +38,7 @@ error:
 ]]
 
   local function bsod(err)
+    computer.beep()
     local panic = bsodtext .. err
     nt.ki.gpu.setForeground(0xFFFFFF)
     nt.ki.gpu.setBackground(nt.ki.gpu.getDepth() > 1 and 0x0066FF or 0x000000)
@@ -60,9 +61,7 @@ end
 -- wrap most kernel code in a pcall
 local ok, err = xpcall(function()
 
-function assert(ok, err)
-  if not ok then error(err or "assertion failed!") else return ok end
-end
+_G._OSVERSION = "OpenNT 0.5"
 
 -- kernel logger
 do
@@ -125,7 +124,7 @@ function loadfile(file, mode, env)
 end
 
 local function run_file(f,...)
-  return loadfile(f)(...)
+  return assert(loadfile(f))(...)
 end
 
 local function run_files(dir, log)
@@ -139,7 +138,7 @@ local function run_files(dir, log)
 end
 
 nt.ki.log("Loading base kernel")
-run_files("/nt/system32/ntoskrnl/", function(n) nt.ki.log("Run file: " .. n:match("%d%d_(.+)%.lua")) end)
+run_files("/nt/system32/ntoskrnl", function(n) nt.ki.log("Run file: " .. n:match("%d%d_(.+)%.lua")) end)
 
 end, debug.traceback) -- kernel code ends here
 

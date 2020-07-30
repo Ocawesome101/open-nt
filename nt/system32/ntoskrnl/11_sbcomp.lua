@@ -1,5 +1,4 @@
----------------------- OpenNT Kernel: 05_interface.lua -------------------------
--- Load and execute interfaces based on BCD.                                  --
+------------------------- OpenNT kernel: 11_sbcomp.lua -------------------------
 -- Copyright (C) 2020 Ocawesome101                                            --
 --                                                                            --
 -- This program is free software: you can redistribute it and/or modify       --
@@ -17,23 +16,17 @@
 --------------------------------------------------------------------------------
 
 do
-  local fs = nt.ke.fs
-
-  local function exec_files(path)
-    nt.ki.log("Running files from " .. path)
-    local files = fs.list(path)
-    table.sort(files)
-    for k, file in ipairs(files) do
-      nt.ki.log("Interface: " .. file)
-      assert(loadfile(path .. file, nil, nt.ki.sandbox))()
+  local overrides = {
+    gpu = nt.ki.gpu,
+    screen = component.proxy(nt.ki.gpu.getScreen())
+  }
+  local function get(_, t)
+    if overrides[t] then
+      return overrides[t]
+    else
+      return component.proxy((component.list(t)()))
     end
   end
 
-  if fs.exists("A:/NT/System32/" .. nt.ki.flags.interface) then
-    nt.ki.flags.log = false
-    exec_files("A:/NT/System32/" .. nt.ki.flags.interface .. "/")
-  else
-    nt.ki.panic("Interface A:/NT/System32/" .. nt.ki.flags.interface .. " nonexistent")
-  end
-  nt.ex.ps.start()
+  setmetatable(nt.ki.sandbox.package.loaded.component, {__index = get})
 end

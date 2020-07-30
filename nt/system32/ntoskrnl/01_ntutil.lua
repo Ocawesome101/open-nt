@@ -28,6 +28,7 @@ do
         if type(v) == "table" then
           if not seen[v] then
             seen[v] = {}
+            to[k] = seen[v]
             copy(v, seen[v])
           end
         else
@@ -67,7 +68,9 @@ do
           v = string.format('"%s"', v)
         elseif type(v) == "function" or type(v) == "thread" then
           error("function / thread cannot be serialized")
-        else
+        end
+        if type(k) == "string" then
+          k = string.format("\"%s\"", k)
         end
         local ent = string.format("[%s]=%s,", k, v)
         r = r .. ent

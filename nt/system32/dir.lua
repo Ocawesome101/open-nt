@@ -1,5 +1,4 @@
----------------------- OpenNT Kernel: 05_interface.lua -------------------------
--- Load and execute interfaces based on BCD.                                  --
+-------------------------------- OpenNT dir.lua --------------------------------
 -- Copyright (C) 2020 Ocawesome101                                            --
 --                                                                            --
 -- This program is free software: you can redistribute it and/or modify       --
@@ -16,24 +15,38 @@
 -- along with this program.  If not, see <https://www.gnu.org/licenses/>.     --
 --------------------------------------------------------------------------------
 
-do
-  local fs = nt.ke.fs
+local cmd = require("cmdlib")
+local fs = require("fs")
 
-  local function exec_files(path)
-    nt.ki.log("Running files from " .. path)
-    local files = fs.list(path)
-    table.sort(files)
-    for k, file in ipairs(files) do
-      nt.ki.log("Interface: " .. file)
-      assert(loadfile(path .. file, nil, nt.ki.sandbox))()
-    end
-  end
+local args, opts = cmd.parse(...)
 
-  if fs.exists("A:/NT/System32/" .. nt.ki.flags.interface) then
-    nt.ki.flags.log = false
-    exec_files("A:/NT/System32/" .. nt.ki.flags.interface .. "/")
-  else
-    nt.ki.panic("Interface A:/NT/System32/" .. nt.ki.flags.interface .. " nonexistent")
+if #args == 0 then
+  args[1] = "\\"
+end
+
+local drv = args[1]:match("^(.):") or os.getenv("DRIVE") or "A"
+local prx = assert(fs.get(drv))
+
+print(string.format("\n\tVolume in drive %s is %s", drv:upper(), prx.getLabel() or prx.address:sub(1,3)))
+print(string.format("\tVolume Serial Number is %s", prx.address:sub(1, 13)))
+print(string.format("\tDirectory of %s:%s", drv:upper(), args[1]))
+io.write("\n\n")
+
+local files = fs.list(args[1])
+if not files then
+  error("File not found")
+end
+
+local maxlen = 0
+for i=1, #files, 1 do
+  if #files[i] > maxlen then
+    maxlen = #files[i]
   end
-  nt.ex.ps.start()
+end
+maxlen = maxlen + 6
+for i=1, #files, 1 do
+  local name, ext = files[i]:match("(.+)%.(.+)")
+  name = name or files[i]
+  ext = ext or "DIR"
+  print(string.format("%s%"..(maxlen-#files[i]+(ext == "DIR" and 0 or 4)).."s", name:upper(), ext:upper()))
 end

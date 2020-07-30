@@ -1,5 +1,4 @@
----------------------- OpenNT Kernel: 05_interface.lua -------------------------
--- Load and execute interfaces based on BCD.                                  --
+--------------------------------- OpenNT cd.lua --------------------------------
 -- Copyright (C) 2020 Ocawesome101                                            --
 --                                                                            --
 -- This program is free software: you can redistribute it and/or modify       --
@@ -16,24 +15,22 @@
 -- along with this program.  If not, see <https://www.gnu.org/licenses/>.     --
 --------------------------------------------------------------------------------
 
-do
-  local fs = nt.ke.fs
+local fs = require("fs")
+local args = {...}
 
-  local function exec_files(path)
-    nt.ki.log("Running files from " .. path)
-    local files = fs.list(path)
-    table.sort(files)
-    for k, file in ipairs(files) do
-      nt.ki.log("Interface: " .. file)
-      assert(loadfile(path .. file, nil, nt.ki.sandbox))()
-    end
-  end
+if #args == 0 then
+  print(os.getenv("CD"))
+  return
+end
 
-  if fs.exists("A:/NT/System32/" .. nt.ki.flags.interface) then
-    nt.ki.flags.log = false
-    exec_files("A:/NT/System32/" .. nt.ki.flags.interface .. "/")
-  else
-    nt.ki.panic("Interface A:/NT/System32/" .. nt.ki.flags.interface .. " nonexistent")
-  end
-  nt.ex.ps.start()
+local d = args[1]
+
+if d:sub(1,1) ~= "/" and d:sub(1,1) ~= "\\" then
+  d = fs.concat(os.getenv("CD"), d)
+end
+
+if fs.exists(d) and fs.isDirectory(d) then
+  os.setenv("CD", d)
+else
+  error("Invalid directory")
 end

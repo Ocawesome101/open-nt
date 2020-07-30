@@ -1,5 +1,4 @@
----------------------- OpenNT Kernel: 05_interface.lua -------------------------
--- Load and execute interfaces based on BCD.                                  --
+------------------------------ OpenNT shutdown.lua -----------------------------
 -- Copyright (C) 2020 Ocawesome101                                            --
 --                                                                            --
 -- This program is free software: you can redistribute it and/or modify       --
@@ -16,24 +15,14 @@
 -- along with this program.  If not, see <https://www.gnu.org/licenses/>.     --
 --------------------------------------------------------------------------------
 
-do
-  local fs = nt.ke.fs
+local computer = require("computer")
+local cmd = require("cmdlib")
+local args, opts = cmd.parse(...)
 
-  local function exec_files(path)
-    nt.ki.log("Running files from " .. path)
-    local files = fs.list(path)
-    table.sort(files)
-    for k, file in ipairs(files) do
-      nt.ki.log("Interface: " .. file)
-      assert(loadfile(path .. file, nil, nt.ki.sandbox))()
-    end
-  end
-
-  if fs.exists("A:/NT/System32/" .. nt.ki.flags.interface) then
-    nt.ki.flags.log = false
-    exec_files("A:/NT/System32/" .. nt.ki.flags.interface .. "/")
-  else
-    nt.ki.panic("Interface A:/NT/System32/" .. nt.ki.flags.interface .. " nonexistent")
-  end
-  nt.ex.ps.start()
+if opts.s then
+  computer.shutdown()
+elseif opts.r then
+  computer.shutdown(true)
+else
+  error("Invalid switch", 0)
 end

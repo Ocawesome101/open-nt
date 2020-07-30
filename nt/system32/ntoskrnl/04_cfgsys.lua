@@ -34,10 +34,13 @@ do
     checkArg(1, key, "string")
     checkArg(2, val, "number", "string")
     key = key:lower()
+    if type(val) == "string" then
+      val = string.format("\"%s\"", val)
+    end
     local cur = _REGISTRY
     local split = {}
     for seg in key:gmatch("[^\\/]+") do
-      split[#split + 1] = seg
+      split[#split + 1] = tonumber(seg) or seg
     end
     for i=1, #split - 1, 1 do
       local seg = split[i]
@@ -49,11 +52,13 @@ do
     end
     cur[split[#split]] = val
     reg_save()
+    return true
   end
 
   function api.create(key)
     checkArg(1, key, "string")
     key = key:lower()
+    if api.get(key) then return true end
     local cur = _REGISTRY
     local split = {}
     for seg in key:gmatch("[^\\/]+") do
@@ -69,6 +74,7 @@ do
     end
     cur[split[#split]] = {}
     reg_save()
+    return true
   end
 
   function api.get(key)

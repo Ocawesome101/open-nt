@@ -56,7 +56,7 @@ do
   local function resolve(path)
     path = path:gsub("\\", "/")
     local letter, file = path:match("(.):(.+)")
-    letter = letter or (nt.ex.ps.info() or {data={env={DRIVE="A:"}}}).data.env.DRIVE:sub(1,1)
+    letter = letter or ((nt.ex.ps.info() or {data={env={DRIVE="A:"}}}).data.env.DRIVE or "A:"):sub(1,1)
     file = file or path
     file = file:lower()
     letter = letter:upper()
@@ -211,6 +211,10 @@ do
     checkArg(1, drv, "string")
     drv = drv:sub(1, 1):upper()
     return drives[drv] or nil, "Drive " .. drv .. ":/ does not exist"
+  end
+
+  function fs.concat(...)
+    return table.concat(table.pack(...), "/"):gsub("(/+)", "/")
   end
 
   nt.ke.fs = fs

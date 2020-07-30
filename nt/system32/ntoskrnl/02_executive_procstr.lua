@@ -77,8 +77,6 @@ do
     h(thd.name .. ": " .. err)
   end
 
-  local global_env = {}
-
   function thread.spawn(func, name, handler, env)
     checkArg(1, func, "function")
     checkArg(2, name, "string")
@@ -225,6 +223,7 @@ do
 
   function thread.start()
     thread.start = nil
+    nt.ki.log("START THREAD")
     while #threads > 0 do
       local run = {}
       for pid, thd in pairs(threads) do
@@ -239,6 +238,7 @@ do
       for i, thd in ipairs(run) do
         cur = thd.pid
         local ok, p1, p2
+        nt.ki.log("RESUME THREAD " .. thd.pid .. ": " .. thd.name)
         if #thd.ipc > 0 then
           local ipc = table.remove(thd.ipc, 1)
           ok, p1, p2 = coroutine.resume(thd.coro, table.unpack(ipc))
@@ -273,6 +273,7 @@ do
 
       cleanup()
     end
+    nt.ki.panic("ALL_THREADS_STOPPED")
   end
 
   nt.ex.ps = thread

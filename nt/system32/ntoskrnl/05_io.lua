@@ -20,15 +20,25 @@ do
   local buffer = nt.ex.io
   local fs = nt.ke.fs
 
+  local dft = {
+    data = {
+      io = {
+        [0] = {},
+        [1] = {},
+        [2] = {}
+      }
+    }
+  }
+
   local rets = {
     stdin = function()
-      return nt.ex.ps.info().data.io[0]
+      return (nt.ex.ps.info() or dft).data.io[0]
     end,
     stdout = function()
-      return nt.ex.ps.info().data.io[1]
+      return (nt.ex.ps.info() or dft).data.io[1]
     end,
     stderr = function()
-      return nt.ex.ps.info().data.io[2]
+      return (nt.ex.ps.info() or dft).data.io[2]
     end
   }
 
@@ -53,9 +63,9 @@ do
       file = assert(io.open(file, m))
     end
     if file then
-      nt.ex.ps.info().data.io[n] = file
+      (nt.ex.ps.info() or dft).data.io[n] = file
     end
-    return nt.ex.ps.info().data.io[n]
+    return (nt.ex.ps.info() or dft).data.io[n]
   end
 
   function io.input(file)
@@ -95,5 +105,23 @@ do
     checkArg(1, h, "table", "nil")
     h = h or io.stdout
     return h:flush()
+  end
+end
+
+do
+  nt.ki.log("Defining loadfile: #3")
+  function loadfile(file, mode, env)
+    checkArg(1, file, "string")
+    checkArg(2, mode, "string", "nil")
+    checkArg(3, env, "table", "nil")
+    mode = mode or "bt"
+    env = env or _G
+    local handle, err = io.open(file, "r")
+    if not handle then
+      return nil, err
+    end
+    local data = handle:read("a")
+    handle:close()
+    return load(data, "=" .. file, mode, env)
   end
 end

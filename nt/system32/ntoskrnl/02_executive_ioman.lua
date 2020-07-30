@@ -401,4 +401,4 @@ function buffer:size()
   return size
 end
 
-nt.io = buffer
+nt.ex.io = buffer

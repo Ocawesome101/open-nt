@@ -1,5 +1,4 @@
----------------------- OpenNT Kernel: 05_interface.lua -------------------------
--- Load and execute interfaces based on BCD.                                  --
+-------------------------------- OpenNT cmd.lua --------------------------------
 -- Copyright (C) 2020 Ocawesome101                                            --
 --                                                                            --
 -- This program is free software: you can redistribute it and/or modify       --
@@ -16,24 +15,39 @@
 -- along with this program.  If not, see <https://www.gnu.org/licenses/>.     --
 --------------------------------------------------------------------------------
 
+-- set up stdio
 do
-  local fs = nt.ke.fs
+  if io.tmp_stdio then
+    io.tmp_stdio.stdout:write("Setting standard I/O.\n")
+    io.input(io.tmp_stdio.stdin)
+    io.output(io.tmp_stdio.stdout)
+    io.tmp_stdio = nil
+  end
+end
 
-  local function exec_files(path)
-    nt.ki.log("Running files from " .. path)
-    local files = fs.list(path)
-    table.sort(files)
-    for k, file in ipairs(files) do
-      nt.ki.log("Interface: " .. file)
-      assert(loadfile(path .. file, nil, nt.ki.sandbox))()
+os.setenv("CD", os.getenv("CD") or "/")
+local cmd = require("cmdlib")
+
+-- prompt replacements
+local prep = {
+  ["%$P"] = function() return (os.getenv("DRIVE") or "A:") .. (os.getenv("CD") or "/") end,
+  ["%$G"] = function() return ">" end
+}
+local function parseprompt(ppt)
+  for pat, rep in pairs(prep) do
+    ppt = ppt:gsub(pat, rep())
+  end
+  return ppt
+end
+
+while true do
+  local ppt = os.getenv("PROMPT") or "$P$G "
+  io.write(parseprompt(ppt))
+  local line = io.read():gsub("\n", "")
+  if #line > 0 then
+    local ok, err = cmd.execute(line)
+    if not ok then
+      print("\27[91m" .. err .. "\27[37m")
     end
   end
-
-  if fs.exists("A:/NT/System32/" .. nt.ki.flags.interface) then
-    nt.ki.flags.log = false
-    exec_files("A:/NT/System32/" .. nt.ki.flags.interface .. "/")
-  else
-    nt.ki.panic("Interface A:/NT/System32/" .. nt.ki.flags.interface .. " nonexistent")
-  end
-  nt.ex.ps.start()
 end
