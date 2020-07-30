@@ -15,8 +15,14 @@
 -- along with this program.  If not, see <https://www.gnu.org/licenses/>.     --
 --------------------------------------------------------------------------------
 
+local flags = ... or {}
+flags.interface = flags.interface or "cmd"
+flags.log = flags.log ~= false
+flags.services = flags.services ~= false
+flags.multiuser = flags.multiuser ~= false
+
 _G.nt = {} -- the kernel API
-nt.ki = {}
+nt.ki = {flags = flags}
 nt.ke = {}
 
 nt.ki.gpu = component.proxy(component.list("gpu")())
@@ -54,6 +60,10 @@ end
 -- wrap most kernel code in a pcall
 local ok, err = xpcall(function()
 
+function assert(ok, err)
+  if not ok then error(err or "assertion failed!") else return ok end
+end
+
 -- kernel logger
 do
   local y = 0
@@ -69,7 +79,10 @@ do
   nt.ki.gpu.setForeground(0xFFFFFF)
   nt.ki.gpu.setBackground(0x000000)
   function nt.ki.log(msg)
+    if not flags.log then return end
     for line in msg:gmatch("[^\n]+") do
+      nt.ki.gpu.setForeground(0xFFFFFF)
+      nt.ki.gpu.setBackground(0x000000)
       if y > h - 2 then
         y = h - 1
         nt.ki.gpu.copy(1, 1, w, h - 1, 0, -1)
@@ -77,7 +90,12 @@ do
       else
         y = y + 1
       end
+      nt.ki.gpu.setForeground(0xFFFFFF)
+      nt.ki.gpu.setBackground(0x000000)
       nt.ki.gpu.set(1, y, (line:gsub("\t", "  ")))
+      nt.ki.gpu.setForeground(0x000000)
+      nt.ki.gpu.setBackground(0xBEBEBE)
+      nt.ki.gpu.set(1, h, string.format("%dK free  ", computer.freeMemory() // 1024))
     end
   end
 end

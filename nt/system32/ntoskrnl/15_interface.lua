@@ -1,5 +1,5 @@
--------------------------- OpenNT kernel: 05_gdi.lua ---------------------------
--- Graphics Device Interface - draw lines, squares, and soon manage buffers.  --
+---------------------- OpenNT Kernel: 05_interface.lua -------------------------
+-- Load and execute interfaces based on BCD.                                  --
 -- Copyright (C) 2020 Ocawesome101                                            --
 --                                                                            --
 -- This program is free software: you can redistribute it and/or modify       --
@@ -17,7 +17,21 @@
 --------------------------------------------------------------------------------
 
 do
-  local gdi = {}
+  local fs = nt.ke.fs
 
-  nt.win32.gdi = gdi
+  local function exec_files(path)
+    nt.ki.log("Running files from " .. path)
+    local files = fs.list(path)
+    table.sort(files)
+    for k, file in ipairs(files) do
+      nt.ki.log("Interface: " .. file)
+      assert(loadfile(path .. file, nil, nt.ki.sandbox))()
+    end
+  end
+
+  if fs.exists("A:/NT/System32/" .. nt.ki.flags.interface) then
+    exec_files("A:/NT/System32/" .. nt.ki.flags.interface .. "/")
+  else
+    nt.ki.panic("Interface A:/NT/System32/" .. nt.ki.flags.interface .. " nonexistent")
+  end
 end

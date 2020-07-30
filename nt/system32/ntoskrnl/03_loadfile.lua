@@ -1,6 +1,4 @@
--------------------- OpenNT kernel: 02_executive_objman.lua --------------------
--- OpenNT implementation of the Windows NT Executive's Object Manager.        --
---                                                                            --
+----------------------- OpenNT kernel: 03_loadfile.lua -------------------------
 -- Copyright (C) 2020 Ocawesome101                                            --
 --                                                                            --
 -- This program is free software: you can redistribute it and/or modify       --
@@ -18,23 +16,27 @@
 --------------------------------------------------------------------------------
 
 do
-  local obj = {}
-
-  function obj.new(typ)
-    local n = {}
-    local ts = tostring(n):gsub("table", typ)
-    return setmetatable(n, {__index = obj, __type = typ, __tostring = function() return ts end})
-  end
-
-  function obj:clone()
-    local cp = nt.ke.tcopy(self)
-    local mt = nt.ke.tcopy(getmetatable(self))
-    local ts = tostring(cp):gsub("table", mt.__type)
-    mt.__tostring = function()
-      return ts
+  function loadfile(file, mode, env)
+    checkArg(1, file, "string")
+    checkArg(2, mode, "string", "nil")
+    checkArg(3, env, "table", "nil")
+    mode = mode or "bt"
+    env = env or _G
+    local handle, err = nt.ke.fs.open(file, "r")
+    if not handle then
+      return nil, err
     end
-    return setmetatable(cp, mt)
+    local data = ""
+    repeat
+      local chunk = handle:read(math.huge)
+      data = data .. (chunk or "")
+    until not chunk
+    handle:close()
+    return load(data, "=" .. file, mode, env)
   end
 
-  nt.ex.ob = obj
+  function dofile(file)
+    checkArg(1, file, "string")
+    return assert(loadfile(file))() -- assert() is a wonderful thing
+  end
 end

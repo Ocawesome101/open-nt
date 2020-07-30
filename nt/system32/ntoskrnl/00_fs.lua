@@ -165,6 +165,7 @@ do
   fs.remove = basic("remove")
   fs.size = basic("size")
   fs.lastModified = basic("lastModified")
+  fs.list = basic("list")
 
   function fs.rename(old, new)
     checkArg(1, old, "string")

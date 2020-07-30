@@ -1,11 +1,32 @@
 {
   {
-    name = "OpenNT",
+    name = "OpenNT (Shell)",
     file = "/nt/system32/ntoskrnl.lua",
     args = {
       log = true,
       services = true,
-      multiuser = true
+      multiuser = true,
+      interface = "cmd"
+    }
+  },
+  {
+    name = "OpenNT (GUI)",
+    file = "/nt/system32/ntoskrnl.lua",
+    args = {
+      log = true,
+      services = true,
+      multiuser = true,
+      interface = "shell32"
+    }
+  },
+  {
+    name = "OpenNT (Recursive)",
+    file = "/nt/system32/ntoskrnl.lua",
+    args = {
+      log = true,
+      services = true,
+      multiuser = true,
+      interface = "ntoskrnl"
     }
   }
 }

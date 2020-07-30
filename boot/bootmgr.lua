@@ -128,7 +128,7 @@ local acts = {
     local msg = bcd[sel].message or string.format("Starting %s...", bcd[sel].name)
     gpu.fill(1, h, w, 1, " ")
     gpu.set((w // 2) - (#msg // 2), h, msg)
-    local ok, err = xpcall(ok, debug.traceback)
+    local ok, err = xpcall(ok, debug.traceback, bcd[sel].args)
     if not ok then
       gpu.setForeground(0xFFFFFF)
       gpu.setBackground(0x000000)

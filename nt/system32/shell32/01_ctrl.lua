@@ -1,6 +1,5 @@
--------------------- OpenNT kernel: 02_executive_objman.lua --------------------
--- OpenNT implementation of the Windows NT Executive's Object Manager.        --
---                                                                            --
+-------------------------- OpenNT Kernel: 06_ctrl.lua --------------------------
+-- The Common Control Library.                                                --
 -- Copyright (C) 2020 Ocawesome101                                            --
 --                                                                            --
 -- This program is free software: you can redistribute it and/or modify       --
@@ -18,23 +17,20 @@
 --------------------------------------------------------------------------------
 
 do
-  local obj = {}
+  local ccl = {}
+  local gdi = nt.win32.gdi
 
-  function obj.new(typ)
-    local n = {}
-    local ts = tostring(n):gsub("table", typ)
-    return setmetatable(n, {__index = obj, __type = typ, __tostring = function() return ts end})
-  end
-
-  function obj:clone()
-    local cp = nt.ke.tcopy(self)
-    local mt = nt.ke.tcopy(getmetatable(self))
-    local ts = tostring(cp):gsub("table", mt.__type)
-    mt.__tostring = function()
-      return ts
+  -- Create a window object
+  function ccl.window(w, h)
+    local surface = gdi.createContext(gdi.HW_WO_PERSIST, w, h)
+    local win = {}
+    win.canvas = surface
+    function win.redraw(x, y)
+      win.canvas:blit(x, y)
     end
-    return setmetatable(cp, mt)
+    nt.win32.dwm.addWindow(win)
+    return win
   end
 
-  nt.ex.ob = obj
+  nt.win32.ccl = ccl
 end

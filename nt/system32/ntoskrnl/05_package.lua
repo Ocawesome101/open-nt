@@ -1,6 +1,4 @@
--------------------- OpenNT kernel: 02_executive_objman.lua --------------------
--- OpenNT implementation of the Windows NT Executive's Object Manager.        --
---                                                                            --
+------------------------ OpenNT kernel: 05_package.lua -------------------------
 -- Copyright (C) 2020 Ocawesome101                                            --
 --                                                                            --
 -- This program is free software: you can redistribute it and/or modify       --
@@ -17,24 +15,14 @@
 -- along with this program.  If not, see <https://www.gnu.org/licenses/>.     --
 --------------------------------------------------------------------------------
 
-do
-  local obj = {}
+package.path = "A:/NT/System32/?.lua;A:/Program Files/?/init.lua"
 
-  function obj.new(typ)
-    local n = {}
-    local ts = tostring(n):gsub("table", typ)
-    return setmetatable(n, {__index = obj, __type = typ, __tostring = function() return ts end})
-  end
+local loaded, loading = {}, {}
+package.loaded = loaded
 
-  function obj:clone()
-    local cp = nt.ke.tcopy(self)
-    local mt = nt.ke.tcopy(getmetatable(self))
-    local ts = tostring(cp):gsub("table", mt.__type)
-    mt.__tostring = function()
-      return ts
-    end
-    return setmetatable(cp, mt)
-  end
-
-  nt.ex.ob = obj
+function package.searchpath(name, path, sep, rep)
+  checkArg(1, name, "string")
+  checkArg(2, path, "string")
+  checkArg(3, sep, "string", "nil")
+  checkArg(4, rep, "string", "nil")
 end
