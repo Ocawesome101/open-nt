@@ -291,15 +291,17 @@ function vt.session(gpu, screen)
           buf = buf .. string.char(chr)
         elseif chr == 0 then
           if cod == 200 then
-            write("^[A")
-            buf = buf .. "\27[A\n"
+            write("^A")
+            buf = buf .. "^A"
           elseif cod == 208 then
-            write("^[B")
-            buf = buf .. "\27[B\n"
-          --[[elseif cod == 205 then
-            c = "C"
+            write("^B")
+            buf = buf .. "^B"
+          elseif cod == 205 then
+            write("^C")
+            buf = buf .. "^C"
           elseif cod == 203 then
-            c = "D"]]
+            write("^D")
+            buf = buf .. "^D"
           end
           --[[if c then
             local p = string.format("\27[%s", c)
