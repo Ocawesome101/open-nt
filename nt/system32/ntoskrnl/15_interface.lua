@@ -19,13 +19,15 @@
 do
   local fs = nt.ke.fs
 
+  nt.ki.log("Interface: loaded")
+  
   local function exec_files(path)
     nt.ki.log("Running files from " .. path)
     local files = fs.list(path)
     table.sort(files)
     for k, file in ipairs(files) do
       nt.ki.log("Interface: " .. file)
-      assert(loadfile(path .. file, nil, nt.ki.sandbox))()
+      assert(loadfile(path .. file, nil, (nt.ki.flags.kernelface and _G) or nt.ki.sandbox))()
     end
   end
 
@@ -35,5 +37,6 @@ do
   else
     nt.ki.panic("Interface A:/NT/System32/" .. nt.ki.flags.interface .. " nonexistent")
   end
+  nt.ki.log("Interface: Done.")
   nt.ex.ps.start()
 end

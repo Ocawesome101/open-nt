@@ -16,17 +16,8 @@
       log = true,
       services = true,
       multiuser = true,
+      kernelface = true, -- hack i put in to make the gui work
       interface = "shell32"
-    }
-  },
-  {
-    name = "OpenNT (Recursive)",
-    file = "/nt/system32/ntoskrnl.lua",
-    args = {
-      log = true,
-      services = true,
-      multiuser = true,
-      interface = "ntoskrnl"
     }
   }
 }

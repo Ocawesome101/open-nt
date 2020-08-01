@@ -17,9 +17,10 @@
 --------------------------------------------------------------------------------
 
 local cmd = require("cmdlib")
-local fs = require("filesystem")
+local fs = require("fs")
 local gpu = require("component").gpu
-local buf = {}
+local computer = require("computer")
+local buf = {"This is a test."}
 local line = 1
 local scroll = {
   w = 0,
@@ -34,30 +35,30 @@ else
 end
 gpu.setForeground(0xFFFFFF)
 gpu.fill(1, 1, w, h, " ")
-local cx, cy = 1, 1
+local cx, cy = 0, 1
 
 local function checkCursor()
-  if cx < 1 then
+  if cx < 0 then
     if cy > 1 and line > 1 then
       cy = cy - 1
       line = line - 1
       cx = #buf[line]
     end
   end
-  if cy < 1 then
+  if cy < 2 then
     if line > 1 then
       scroll.h = scroll.h - 1
       line = line - 1
       if cx > #buf[line] then cx = #buf[line] end
     else
-      cy = 1
+      cy = 2
     end
   end
-  if cx > #buf[line] then
+  if cx > #buf[line] + 1 then
     if line < #buf then
       line = line + 1
       cy = cy + 1
-      cx = 1
+      cx = 0
     else
       cx = #buf[line]
     end
@@ -73,15 +74,21 @@ local function checkCursor()
 end
 
 local function draw()
-  for i=1, h, 1 do
+  gpu.setBackground(0xBEBEBE)
+  gpu.setForeground(0x000000)
+  gpu.fill(1, 1, w, 1, " ")
+  gpu.set(1, 1, "F1: Quit | F3: Save and Quit")
+  gpu.setBackground(gpu.getDepth() > 1 and 0x0000FF or 0x000000)
+  gpu.setForeground(0xFFFFFF)
+  for i=1, h - 1, 1 do
     local set = (buf[i + scroll.h] or " "):sub(1 + scroll.w):gsub("\n", "")
     set = set .. string.rep(" ", w - #set)
-    gpu.set(1, i + scroll.h, set)
+    gpu.set(1, i + 1, set)
   end
-  gpu.set(cx, cy, "\u{2588}")
+  io.write(string.format("\27[%d;%dH", cy, cx + 1))
 end
 
-io.write("\27[8m")
+io.write("\27[0m")
 
 local handlers = {}
 handlers[28] = function()
@@ -92,22 +99,30 @@ handlers[28] = function()
     buf[line] = buf[line]:sub(1, cx + scroll.w)
     table.insert(buf, line + 1, ins)
   end
-  cx, cy = 1, cy + 1
+  line = line + 1
+  cx, cy = 0, cy + 1
 end
 handlers[200] = function()
-  cy = cy - 1
+  if line > 1 then cy = cy - 1 line = line - 1 end
 end
 handlers[208] = function()
-  cy = cy + 1
+  if line < #buf then cy = cy + 1 line = line + 1 end
 end
 handlers[203] = function()
-  cx = cx - 1
+  if cx > 0 then cx = cx - 1 end
 end
 handlers[205] = function()
-  cx = cx + 1
+  if cx < #buf[line] then cx = cx + 1 end
+end
+local run = true
+handlers[59] = function()
+  run = false
+end
+handlers[14] = function()
+  buf[line] = buf[line]:sub(1, cx + scroll.w - 1) .. buf[line]:sub(cx + scroll.w + 1)
 end
 
-while true do
+while run do
   checkCursor()
   draw()
   local sig, _, char, code = computer.pullSignal()
@@ -121,4 +136,4 @@ while true do
   end
 end
 
-io.write("\27[0m")
+io.write("\27[0m\27[2J")
