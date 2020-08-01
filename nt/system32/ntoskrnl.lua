@@ -66,8 +66,13 @@ _G._OSVERSION = "OpenNT 0.5"
 -- kernel logger
 do
   local y = 0
-  local bmsg = "Starting OpenNT"
+  local bmsg = "Starting OpenNT..."
   local w, h = nt.ki.gpu.maxResolution()
+  if not nt.ki.flags.log then
+    nt.ki.gpu.fill(1, 1, w, h, " ")
+    nt.ki.gpu.set(1, 1, bmsg)
+    goto cont
+  end
   nt.ki.gpu.setForeground(0xFFFFFF)
   nt.ki.gpu.setBackground(0x000000)
   nt.ki.gpu.fill(1, 1, w, h, " ")
@@ -77,6 +82,7 @@ do
   nt.ki.gpu.set((w // 2) - (#bmsg // 2), h, bmsg)
   nt.ki.gpu.setForeground(0xFFFFFF)
   nt.ki.gpu.setBackground(0x000000)
+  ::cont::
   function nt.ki.log(msg)
     if not flags.log then return end
     for line in msg:gmatch("[^\n]+") do

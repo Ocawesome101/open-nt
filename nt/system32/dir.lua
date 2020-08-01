@@ -17,6 +17,7 @@
 
 local cmd = require("cmdlib")
 local fs = require("fs")
+local pl = require("pathlib")
 
 local args, opts = cmd.parse(...)
 
@@ -24,16 +25,15 @@ if #args == 0 then
   args[1] = "\\"
 end
 
-local drv, path = args[1]:match("^(.:)(.*)") or os.getenv("DRIVE") or "A:"
-path = path or "\\"
+local drv, path = pl.resolve(args[1] or "\\")
 local prx = assert(fs.get(drv))
 
 print(string.format("\n\tVolume in drive %s is %s", drv:upper(), prx.getLabel() or prx.address:sub(1,3)))
 print(string.format("\tVolume Serial Number is %s", prx.address:sub(1, 13):upper()))
 print(string.format("\tDirectory of %s", fs.concat(drv:upper(), path:upper())))
-io.write("\n\n")
+io.write("\n")
 
-local files = fs.list(args[1])
+local files = fs.list(fs.concat(drv, path))
 if not files then
   error("File not found", 0)
 end

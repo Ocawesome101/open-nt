@@ -19,11 +19,11 @@ local fs = require("fs")
 local args = {...}
 
 if #args == 0 then
-  print(os.getenv("CD"))
+  print(os.getenv("DRIVE") .. os.getenv("CD"):upper():gsub("[/\\]+", "\\"))
   return
 end
 
-local d = args[1]
+local d = args[1]:gsub("[/\\]+", "\\")
 
 if d:sub(1,1) ~= "/" and d:sub(1,1) ~= "\\" then
   d = fs.concat(os.getenv("CD"), d)

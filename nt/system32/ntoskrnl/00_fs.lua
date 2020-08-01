@@ -55,7 +55,7 @@ do
 
   local function resolve(path)
     path = path:gsub("\\", "/")
-    local letter, file = path:match("(.):(.+)")
+    local letter, file = path:match("^(.):(.*)")
     letter = letter or ((nt.ex.ps.info() or {data={env={DRIVE="A:"}}}).data.env.DRIVE or "A:"):sub(1,1)
     file = file or path
     file = file:lower()

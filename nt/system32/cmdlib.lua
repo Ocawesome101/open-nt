@@ -76,6 +76,14 @@ function cmd.parse(...)
 end
 
 function cmd.execute(c)
+  if c:match("^(.):$") then
+    if fs.get(c) then
+      os.setenv("DRIVE", c)
+      return true
+    else
+      error("Drive " .. c .. " was not found", 0)
+    end
+  end
   local command = cmd.split(cmd.expand(c))
   local path = os.getenv("PATH")
   local pwd = os.getenv("CD") or "/"

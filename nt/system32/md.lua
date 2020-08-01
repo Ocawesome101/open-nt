@@ -24,7 +24,9 @@ if #args == 0 then
   error("Missing parameter", 0)
 end
 
-local ok, err = fs.makeDirectory(args[1])
+local drv, path = require("pathlib").resolve(args[1])
+
+local ok, err = fs.makeDirectory(fs.concat(drv, path))
 if not ok and err then
   error(err, 0)
 end

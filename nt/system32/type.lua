@@ -18,7 +18,9 @@
 
 local args = {...}
 
-local handle = io.open(args[1])
+local drv, path = require("pathlib").resolve(args[1])
+
+local handle = io.open(path)
 if not handle then
   error("Invalid file", 0)
 end

@@ -31,7 +31,7 @@ local args = cmd.parse(...)
 local fname
 
 if args[1] then
-  fname = args[1]
+  fname = require("pathlib").resolve(args[1])
   local f = io.open(args[1])
   if not f then
     goto cont
@@ -90,11 +90,12 @@ local function checkCursor()
   end
 end
 
+gpu.setBackground(0xBEBEBE)
+gpu.setForeground(0x000000)
+gpu.fill(1, 1, w, 1, " ")
+gpu.set(1, 1, "F1: Quit | F3: Save and Quit")
+
 local function draw()
-  gpu.setBackground(0xBEBEBE)
-  gpu.setForeground(0x000000)
-  gpu.fill(1, 1, w, 1, " ")
-  gpu.set(1, 1, "F1: Quit | F3: Save and Quit")
   gpu.setBackground(gpu.getDepth() > 1 and 0x0000DD or 0x000000)
   gpu.setForeground(0xFFFFFF)
   for i=1, h - 1, 1 do
@@ -104,8 +105,6 @@ local function draw()
   end
   gpu.set(cx + 1, cy, "\u{2588}")
 end
-
-io.write("\27[8m")
 
 local handlers = {}
 handlers[28] = function()
@@ -137,10 +136,12 @@ handlers[59] = function() -- F1
 end
 handlers[61] = function() -- F3
   run = false
-  io.write("\27[0m\27[2J")
-  local f = io.open(fname, "w")
+  gpu.setBackground(0x000000)
+  gpu.setForeground(0xFFFFFF)
+  gpu.fill(1, 1, w, h, " ")
+  local f, e = io.open(fname, "w")
   if not f then
-    error("Failed saving file", 0)
+    error("Failed saving file: " .. e, 0)
   end
   f:write(table.concat(buf, "\n"))
   f:close()
@@ -164,4 +165,6 @@ while run do
   end
 end
 
-io.write("\27[0m\27[2J")
+gpu.setBackground(0x000000)
+gpu.setForeground(0xFFFFFF)
+gpu.fill(1, 1, w, h, " ")

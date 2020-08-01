@@ -18,7 +18,7 @@
 -- set up stdio
 do
   if io.tmp_stdio then
-    io.tmp_stdio.stdout:write("Setting standard I/O.\n")
+    io.tmp_stdio.stdout:write("\nSetting standard I/O....\n\n")
     io.input(io.tmp_stdio.stdin)
     io.output(io.tmp_stdio.stdout)
     io.tmp_stdio = nil
@@ -26,12 +26,12 @@ do
 end
 
 os.setenv("DRIVE", os.getenv("DRIVE") or "A:")
-os.setenv("CD", os.getenv("CD") or "/")
+os.setenv("CD", os.getenv("CD") or "\\")
 local cmd = require("cmdlib")
 
 -- prompt replacements
 local prep = {
-  ["%$P"] = function() return (os.getenv("DRIVE") or "A:") .. (os.getenv("CD") or "/") end,
+  ["%$P"] = function() return (os.getenv("DRIVE") or "A:") .. (os.getenv("CD") or "\\"):upper():gsub("[/\\]+", "\\") end,
   ["%$G"] = function() return ">" end
 }
 local function parseprompt(ppt)
@@ -48,7 +48,7 @@ while true do
   if #line > 0 then
     local ok, err = cmd.execute(line)
     if not ok then
-      print("\27[91m" .. err .. "\27[37m")
+      print(err)
     end
     io.write("\n")
   end

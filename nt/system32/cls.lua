@@ -1,1 +1,1 @@
-io.write("\27[2J")
+require("term").clear()

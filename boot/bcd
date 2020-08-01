@@ -3,7 +3,7 @@
     name = "OpenNT (Shell)",
     file = "/nt/system32/ntoskrnl.lua",
     args = {
-      log = true,
+      log = false,
       services = true,
       multiuser = true,
       interface = "cmd"
