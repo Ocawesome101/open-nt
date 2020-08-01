@@ -20,14 +20,31 @@ local cmd = require("cmdlib")
 local fs = require("fs")
 local gpu = require("component").gpu
 local computer = require("computer")
-local buf = {"This is a test."}
+local buf = {""}
 local line = 1
 local scroll = {
   w = 0,
   h = 0
 }
 local w, h = gpu.getResolution()
+local args = cmd.parse(...)
+local fname
 
+if args[1] then
+  fname = args[1]
+  local f = io.open(args[1])
+  if not f then
+    goto cont
+  end
+  buf = {}
+  for line in f:lines("l") do
+    buf[#buf + 1] = line
+  end
+  f:close()
+else
+  error("Missing file argument", 0)
+end
+::cont::
 if gpu.getDepth() > 1 then
   gpu.setBackground(0x0000DD)
 else
@@ -64,7 +81,7 @@ local function checkCursor()
     end
   end
   if cy > h then
-    if line < #buf then
+    if line <= #buf then
       scroll.h = scroll.h + 1
       cy = h
     else
@@ -102,23 +119,33 @@ handlers[28] = function()
   line = line + 1
   cx, cy = 0, cy + 1
 end
-handlers[200] = function()
+handlers[200] = function() -- Up
   if line > 1 then cy = cy - 1 line = line - 1 end
 end
-handlers[208] = function()
+handlers[208] = function() -- Down
   if line < #buf then cy = cy + 1 line = line + 1 end
 end
-handlers[203] = function()
+handlers[203] = function() -- Left
   if cx > 0 then cx = cx - 1 end
 end
-handlers[205] = function()
+handlers[205] = function() -- Right
   if cx < #buf[line] then cx = cx + 1 end
 end
 local run = true
-handlers[59] = function()
+handlers[59] = function() -- F1
   run = false
 end
-handlers[14] = function()
+handlers[61] = function() -- F3
+  run = false
+  io.write("\27[0m\27[2J")
+  local f = io.open(fname, "w")
+  if not f then
+    error("Failed saving file", 0)
+  end
+  f:write(table.concat(buf, "\n"))
+  f:close()
+end
+handlers[14] = function() -- Backspace
   buf[line] = buf[line]:sub(1, cx + scroll.w - 1) .. buf[line]:sub(cx + scroll.w + 1)
   if cx > 0 then cx = cx - 1 end
 end
