@@ -55,6 +55,7 @@ do
   sb._G = sb
   sb.table.copy = nt.ke.tcopy
   sb.package.loaded.computer = nt.ke.tcopy(computer)
+  sb.package.loaded.computer.pullSignal = sb.coroutine.yield
   sb.package.loaded.component = nt.ke.tcopy(component)
   sb.package.loaded.unicode = nt.ke.tcopy(unicode)
   sb.package.loaded.win32 = nt.ke.tcopy(nt.win32)

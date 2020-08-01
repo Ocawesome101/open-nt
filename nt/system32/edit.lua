@@ -29,7 +29,7 @@ local scroll = {
 local w, h = gpu.getResolution()
 
 if gpu.getDepth() > 1 then
-  gpu.setBackground(0x0000FF)
+  gpu.setBackground(0x0000DD)
 else
   gpu.setBackground(0x000000)  
 end
@@ -78,17 +78,17 @@ local function draw()
   gpu.setForeground(0x000000)
   gpu.fill(1, 1, w, 1, " ")
   gpu.set(1, 1, "F1: Quit | F3: Save and Quit")
-  gpu.setBackground(gpu.getDepth() > 1 and 0x0000FF or 0x000000)
+  gpu.setBackground(gpu.getDepth() > 1 and 0x0000DD or 0x000000)
   gpu.setForeground(0xFFFFFF)
   for i=1, h - 1, 1 do
     local set = (buf[i + scroll.h] or " "):sub(1 + scroll.w):gsub("\n", "")
     set = set .. string.rep(" ", w - #set)
     gpu.set(1, i + 1, set)
   end
-  io.write(string.format("\27[%d;%dH", cy, cx + 1))
+  gpu.set(cx + 1, cy, "\u{2588}")
 end
 
-io.write("\27[0m")
+io.write("\27[8m")
 
 local handlers = {}
 handlers[28] = function()
@@ -120,6 +120,7 @@ handlers[59] = function()
 end
 handlers[14] = function()
   buf[line] = buf[line]:sub(1, cx + scroll.w - 1) .. buf[line]:sub(cx + scroll.w + 1)
+  if cx > 0 then cx = cx - 1 end
 end
 
 while run do
