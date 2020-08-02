@@ -165,7 +165,7 @@ while run do
     if handlers[code] then
       handlers[code]()
     elseif char >= 32 and char < 127 then
-      buf[line] = buf[line]:sub(1, cx + scroll.w) .. string.char(char) .. buf[line]:sub(cx + scroll.w + 1)
+      buf[line] = buf[line]:sub(1, cx + scroll.w) .. string.char(char) .. buf[line]:sub(cx + scroll.w)
       handlers[205]()
     end
   end
