@@ -1,6 +1,4 @@
--------------------------------- OpenNT cls.lua --------------------------------
--- Why I even bothered putting a one-liner that would work across multiple    --
--- systems under the license is beyond me.                                    --
+----------------------------- OpenNT tasklist.lua-------------------------------
 -- Copyright (C) 2020 Ocawesome101                                            --
 --                                                                            --
 -- This program is free software: you can redistribute it and/or modify       --
@@ -16,6 +14,5 @@
 -- You should have received a copy of the GNU General Public License          --
 -- along with this program.  If not, see <https://www.gnu.org/licenses/>.     --
 --------------------------------------------------------------------------------
-local term = require("term")
-term.clear()
-term.cursor(1, 1)
+
+
