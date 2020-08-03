@@ -33,6 +33,12 @@ print(string.format("\tVolume Serial Number is %s", prx.address:sub(1, 13):upper
 print(string.format("\tDirectory of %s", fs.concat(drv:upper(), path:upper())))
 io.write("\n")
 
+local function lastModified(f)
+  local full = fs.concat(drv, path, f)
+  local lm = fs.lastModified(full)
+  return os.date("%x %r", lm)
+end
+
 local files = fs.list(fs.concat(drv, path))
 if not files then
   error("File not found", 0)
@@ -44,10 +50,11 @@ for i=1, #files, 1 do
     maxlen = #files[i]
   end
 end
-maxlen = maxlen + 6
+
+maxlen = maxlen + 5
 for i=1, #files, 1 do
   local name, ext = files[i]:match("(.+)%.(.+)")
   name = name or files[i]
   ext = ext or "<DIR>"
-  print(string.format("%s%"..(maxlen-#files[i]+(ext == "<DIR>" and 0 or 4)).."s", name:upper(), ext:upper()))
+  print(string.format("%s%"..(maxlen-#files[i]).."s  %"..(ext == "<DIR>" and 20 or 24).."s", name:upper(), ext:upper(), lastModified(files[i])))
 end
