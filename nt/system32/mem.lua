@@ -1,6 +1,5 @@
--------------------------------- OpenNT cls.lua --------------------------------
--- Why I even bothered putting a one-liner that would work across multiple    --
--- systems under the license is beyond me.                                    --
+-------------------------------- OpenNT mem.lua --------------------------------
+-- Print memory information.                                                  --
 -- Copyright (C) 2020 Ocawesome101                                            --
 --                                                                            --
 -- This program is free software: you can redistribute it and/or modify       --
@@ -16,4 +15,18 @@
 -- You should have received a copy of the GNU General Public License          --
 -- along with this program.  If not, see <https://www.gnu.org/licenses/>.     --
 --------------------------------------------------------------------------------
-require("term").clear()
+
+local computer = require("computer")
+
+local total, free = computer.totalMemory(), computer.freeMemory()
+local used = total - free
+total, free, used = total // 1024, free // 1024, used // 1024
+
+print([[
+Memory Type       Total  =   Used  +   Free
+---------------  -------   -------    ------]])
+
+print(string.format("Conventional     %6dK   %6dK   %6dK", total, used, free))
+print("---------------  -------   -------    ------")
+print(string.format("Total Memory     %6dK   %6dK   %6dK\n", total, used, free))
+print("Note: Only limited memory info is available.")

@@ -58,3 +58,5 @@ for i=1, #files, 1 do
   ext = ext or "<DIR>"
   print(string.format("%s%"..(maxlen-#files[i]).."s  %"..(ext == "<DIR>" and 20 or 24).."s", name:upper(), ext:upper(), lastModified(files[i])))
 end
+
+print(string.format("\t%d file(s)", #files))
