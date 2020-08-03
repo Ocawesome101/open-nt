@@ -271,6 +271,18 @@ do
         end
       end
 
+      if computer.freeMemory() < 1024 then
+        local miss = {}
+        for i=1, 10, 1 do
+          local sig = table.pack(computer.pullSignal(0))
+          if sig.n > 0 then
+            miss[#miss + 1] = sig
+          end
+        end
+        for i=1, #miss, 1 do
+          computer.pushSignal(table.unpack(miss[i]))
+        end
+      end
       cleanup()
     end
     nt.ki.panic("ALL_THREADS_STOPPED")

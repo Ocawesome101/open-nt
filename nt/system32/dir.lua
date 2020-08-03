@@ -56,7 +56,22 @@ for i=1, #files, 1 do
   local name, ext = files[i]:match("(.+)%.(.+)")
   name = name or files[i]
   ext = ext or "<DIR>"
-  print(string.format("%s%"..(maxlen-#files[i]).."s  %"..(ext == "<DIR>" and 20 or 24).."s", name:upper(), ext:upper(), lastModified(files[i])))
+  files[i] = (string.format("%s%"..(maxlen-#files[i]).."s  %"..(ext == "<DIR>" and 20 or 24).."s", name:upper(), ext:upper(), lastModified(files[i])))
+end
+
+local w, h = require("component").gpu.getResolution()
+local printed = 4
+for i=1, #files, 1 do
+  printed = printed + 1
+  print(files[i])
+  if opts.p and printed == h - 1 then
+    io.write("Press any key to continue...")
+    repeat
+      local sig, _, char = coroutine.yield()
+    until sig == "key_down"
+    printed = 1
+    io.write("\n\n(Continuing " .. fs.concat(drv, path):upper() .. ")\n")
+  end
 end
 
 print(string.format("\t%d file(s)", #files))

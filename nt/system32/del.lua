@@ -1,5 +1,4 @@
--------------------------------- OpenNT mem.lua --------------------------------
--- Print memory information.                                                  --
+-------------------------------- OpenNT del.lua --------------------------------
 -- Copyright (C) 2020 Ocawesome101                                            --
 --                                                                            --
 -- This program is free software: you can redistribute it and/or modify       --
@@ -17,25 +16,35 @@
 --------------------------------------------------------------------------------
 
 local cmd = require("cmdlib")
-local computer = require("computer")
+local pl = require("pathlib")
+local fs = require("fs")
+
 local args, opts = cmd.parse(...)
-if opts.g then
-  print("Collecting garbage")
-  for i=1, 10, 1 do
-    coroutine.yield(0)
-  end
-  return
+
+if #args == 0 then
+  error("Required parameter missing", 0)
 end
 
-local total, free = computer.totalMemory(), computer.freeMemory()
-local used = total - free
-total, free, used = total // 1024, free // 1024, used // 1024
+local drv, path = pl.resolve(args[1])
+local full = fs.concat(drv, path)
 
-print([[
-Memory Type       Total  =   Used  +   Free
----------------  -------   -------    ------]])
+if not fs.exists(full) then
+  error("File not found", 0)
+end
 
-print(string.format("Conventional     %6dK   %6dK   %6dK", total, used, free))
-print("---------------  -------   -------    ------")
-print(string.format("Total Memory     %6dK   %6dK   %6dK\n", total, used, free))
-print("Note: Only limited memory info is available.")
+if opts.P or opts.p then
+  io.write(args[1] .. ", Delete (Y/N)? ")
+  while true do
+    local s = io.read():gsub("\n", "")
+    if s:upper() == "N" then
+      return
+    elseif s:upper() == "Y" then
+      break
+    end
+  end
+end
+
+local ok, err = fs.remove(full)
+if not ok then
+  error(err, 0)
+end

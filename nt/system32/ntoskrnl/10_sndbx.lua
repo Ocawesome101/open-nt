@@ -65,8 +65,8 @@ do
   local loaded = sb.package.loaded
   function sb.require(name)
     checkArg(1, name, "string")
-    if loaded[name] then
-      return loaded[name]
+    if sb.package.loaded[name] then
+      return sb.package.loaded[name]
     else
       local path, err = package.searchpath(name, package.path)
       if not path then
@@ -78,7 +78,7 @@ do
       end
       local ret = ok()
       assert(type(ret) == "function" or type(ret) == "table", string.format("module '%s' returned wrong type (expected 'function' or 'table', got '%s')", name, type(ret)))
-      package.loaded[name] = ret
+      sb.package.loaded[name] = ret
       return ret
     end
   end
