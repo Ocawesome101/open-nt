@@ -15,4 +15,9 @@
 -- along with this program.  If not, see <https://www.gnu.org/licenses/>.     --
 --------------------------------------------------------------------------------
 
+local ps = require("ex.ps")
 
+for n, pid in pairs(ps.threads()) do
+  local info = ps.info(pid)
+  print(string.format("%4d | %s", pid, info.name))
+end
