@@ -1,5 +1,5 @@
 {
-  timeout = 0,
+  timeout = 3,
   {
     name = "OpenNT (Shell)",
     file = "/nt/system32/ntoskrnl.lua",
@@ -17,7 +17,6 @@
       log = true,
       services = true,
       multiuser = true,
-      kernelface = true, -- hack i put in to make the gui work
       interface = "shell32"
     }
   }

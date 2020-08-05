@@ -16,6 +16,10 @@
 -- along with this program.  If not, see <https://www.gnu.org/licenses/>.     --
 --------------------------------------------------------------------------------
 
+if require("win32").gdi then
+  return require("guiterm")
+end
+
 local cx, cy = 1, 1
 local gpu = require("component").gpu
 gpu.setBackground(0x000000)

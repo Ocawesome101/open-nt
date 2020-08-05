@@ -61,6 +61,9 @@ do
   sb.package.loaded.win32 = nt.ke.tcopy(nt.win32)
   sb.package.loaded["ex.ps"] = nt.ke.tcopy(nt.ex.ps)
   sb.package.loaded["ex.cm"] = nt.ke.tcopy(nt.ex.cm)
+  sb.package.loaded["ex.ob"] = nt.ke.tcopy(nt.ex.ob)
+  sb.package.loaded.buffer   = nt.ke.tcopy(nt.ex.io)
+  sb.package.loaded["ex.lpc"]= nt.ke.tcopy(nt.ex.lpc)
   sb.package.loaded.fs = nt.ke.tcopy(nt.ke.fs)
   local loaded = sb.package.loaded
   function sb.require(name)

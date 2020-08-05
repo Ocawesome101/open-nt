@@ -17,7 +17,7 @@
 
 _G.package = {}
 
-package.path = "A:/NT/System32/?.lua;A:/Program Files/?/init.lua"
+package.path = "A:/NT/System32/?.lua;A:/Program Files/?/init.lua;A:/Program Files/Common/?.lua"
 local fs = nt.ke.fs
 local loaded, loading = {}, {}
 package.loaded = loaded
