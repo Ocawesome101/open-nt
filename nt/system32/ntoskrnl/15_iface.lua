@@ -27,7 +27,7 @@ do
     table.sort(files)
     for k, file in ipairs(files) do
       nt.ki.log("Interface: " .. file)
-      assert(loadfile(path .. file, nil, (nt.ki.flags.kernelface and _G) or nt.ki.sandbox))()
+      assert(loadfile(path .. file, nil, nt.ki.sandbox))()
     end
   end
 

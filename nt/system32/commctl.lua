@@ -1,4 +1,4 @@
--------------------------- OpenNT Kernel: 06_ctrl.lua --------------------------
+-------------------------- OpenNT Shell32: commctl.lua -------------------------
 -- The Common Control Library.                                                --
 -- Copyright (C) 2020 Ocawesome101                                            --
 --                                                                            --
@@ -16,21 +16,19 @@
 -- along with this program.  If not, see <https://www.gnu.org/licenses/>.     --
 --------------------------------------------------------------------------------
 
-do
-  local ccl = {}
-  local gdi = nt.win32.gdi
+local ccl = {}
+local gdi = require("win32").gdi
 
-  -- Create a window object
-  function ccl.window(w, h)
-    local surface = gdi.createContext(gdi.HW_WO_PERSIST, w, h)
-    local win = {}
-    win.canvas = surface
-    function win.redraw(x, y)
-      win.canvas:blit(x, y)
-    end
-    nt.win32.dwm.addWindow(win)
-    return win
+-- Create a window object
+function ccl.window(w, h)
+  local surface = gdi.createContext(gdi.HW_WO_PERSIST, w, h)
+  local win = {}
+  win.canvas = surface
+  function win.redraw(x, y)
+    win.canvas:blit(x, y)
   end
-
-  nt.win32.ccl = ccl
+  nt.win32.dwm.addWindow(win)
+  return win
 end
+
+return ccl

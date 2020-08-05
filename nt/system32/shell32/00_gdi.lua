@@ -1,4 +1,4 @@
--------------------------- OpenNT kernel: 05_gdi.lua ---------------------------
+-------------------------- OpenNT shell32: 00_gdi.lua --------------------------
 -- Graphics Device Interface - manage buffers and soon draw lines, squares.   --
 -- Copyright (C) 2020 Ocawesome101                                            --
 --                                                                            --
@@ -20,7 +20,7 @@
 
 do
   local gdi = {}
-  local gpu = nt.ki.gpu
+  local gpu = require("component").gpu
   local bufs = {}
   -- Hardware buffers are cheaper, faster, and have more operations available.
   -- Software buffers are more expensive, slower, and have fewer operations available, but are not limited by the GPU.
@@ -32,9 +32,7 @@ do
 
   local swbufN = 0
   
-  nt.ki.log("Initialize: Graphics Device Interface (GDI)")
-
-  local context = nt.ex.ob.new("scrbuf")
+  local context = require("ex.ob").new("scrbuf")
 
   function context:blit(x, y)
     checkArg(1, x, "number")
@@ -226,5 +224,6 @@ do
     return buffer
   end
 
-  nt.win32.gdi = gdi
+  -- inject win32.gdi
+  require("win32").gdi = gdi
 end
