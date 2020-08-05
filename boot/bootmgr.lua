@@ -56,15 +56,6 @@ else
         services = true,
         multiuser = true
       }
-    },
-    {
-      name = "OpenNT (Safe Mode)",
-      file = "/boot/ntoskrnl.lua",
-      args = {
-        log = true,
-        services = false,
-        multiuser = false
-      }
     }
   }
 end
@@ -156,14 +147,22 @@ local acts = {
   end
 }
 
+if #bcd == 1 then
+  acts[13]()
+end
+
+local max = computer.uptime() + (bcd.timeout or 5)
 while true do
   draw_menu()
-  local sig, _, char, key = computer.pullSignal()
+  if max < math.huge then gpu.set(1, h, "Starting selected in " .. (max - computer.uptime()) // 1 .. "s") end
+  local sig, _, char, key = computer.pullSignal(math.min(1, max - computer.uptime()))
   if sig == "key_down" then
     if acts[char] then
       acts[char]()
     elseif acts[key] then
       acts[key]()
     end
+  elseif computer.uptime() >= max then
+    acts[13]()
   end
 end

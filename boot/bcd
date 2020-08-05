@@ -1,4 +1,5 @@
 {
+  timeout = 0,
   {
     name = "OpenNT (Shell)",
     file = "/nt/system32/ntoskrnl.lua",
