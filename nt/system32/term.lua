@@ -76,9 +76,12 @@ local chars = {
 function term.read()
   local buf = ""
   local sx, sy = cx, cy
-  local function redraw() -- TODO TODO TODO: handle going offscreen at the bottom
+  local function redraw()
     cx, cy = sx, sy
     write(buf .. "_ ")
+    while ((#buf + sx) // w) + sy > h do
+      sy = sy - 1
+    end
   end
   while true do
     redraw()
