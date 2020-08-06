@@ -15,6 +15,8 @@
 -- along with this program.  If not, see <https://www.gnu.org/licenses/>.     --
 --------------------------------------------------------------------------------
 
+local fs = require("fs")
+
 -- set up stdio
 do
   if io.tmp_stdio then
@@ -41,7 +43,11 @@ local function parseprompt(ppt)
   return ppt
 end
 
-os.setenv("PROMPT", os.getenv("PROMPT" or "$p$g"))
+os.setenv("PROMPT", os.getenv("PROMPT") or "$p$g")
+
+if fs.exists("A:/Autorun.lua") then
+  cmd.execute("A:/Autorun.lua")
+end
 
 while true do
   local ppt = os.getenv("PROMPT") or "$P$G "

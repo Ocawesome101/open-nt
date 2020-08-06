@@ -18,5 +18,5 @@
 local env = require("ex.ps").info().data.env
 
 for k, v in pairs(env) do
-  print(string.format("%s = '%s'", k:upper(), v))
+  print(string.format("%s='%s'", k:upper(), v))
 end
