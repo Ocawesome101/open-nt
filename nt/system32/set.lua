@@ -1,4 +1,4 @@
--------------------------------- OpenNT cmd.lua --------------------------------
+-------------------------------- OpenNT set.lua --------------------------------
 -- Copyright (C) 2020 Ocawesome101                                            --
 --                                                                            --
 -- This program is free software: you can redistribute it and/or modify       --
@@ -15,43 +15,8 @@
 -- along with this program.  If not, see <https://www.gnu.org/licenses/>.     --
 --------------------------------------------------------------------------------
 
--- set up stdio
-do
-  if io.tmp_stdio then
-    io.tmp_stdio.stdout:write("\nSetting standard I/O....\n\n")
-    io.input(io.tmp_stdio.stdin)
-    io.output(io.tmp_stdio.stdout)
-    io.tmp_stdio = nil
-  end
-end
+local env = require("ex.ps").info().data.env
 
-os.setenv("DRIVE", os.getenv("DRIVE") or "A:")
-os.setenv("CD", os.getenv("CD") or "\\")
-local cmd = require("cmdlib")
-
--- prompt replacements
-local prep = {
-  ["%$[Pp]"] = function() return (os.getenv("DRIVE") or "A:") .. (os.getenv("CD") or "\\"):upper():gsub("[/\\]+", "\\") end,
-  ["%$[Gg]"] = function() return ">" end
-}
-local function parseprompt(ppt)
-  for pat, rep in pairs(prep) do
-    ppt = ppt:gsub(pat, rep())
-  end
-  return ppt
-end
-
-os.setenv("PROMPT", os.getenv("PROMPT" or "$p$g"))
-
-while true do
-  local ppt = os.getenv("PROMPT") or "$P$G "
-  io.write(parseprompt(ppt))
-  local line = io.read():gsub("\n", "")
-  if #line > 0 then
-    local ok, err = cmd.execute(line)
-    if not ok then
-      print(err)
-    end
-    io.write("\n")
-  end
+for k, v in pairs(env) do
+  print(string.format("%s = '%s'", k:upper(), v))
 end

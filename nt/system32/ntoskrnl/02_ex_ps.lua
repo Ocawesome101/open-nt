@@ -110,8 +110,8 @@ do
         [2] = current.data.io[2] or current.data.io[1]
       }
     }
-    if not new.env.PWD then
-      new.env.PWD = "/"
+    if not new.env.cd then
+      new.env.cd = "\\"
     end
     setmetatable(new, {__index = threads[cur] or {}})
     threads[last] = new

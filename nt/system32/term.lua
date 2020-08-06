@@ -77,6 +77,7 @@ function term.read()
   local buf = ""
   local sx, sy = cx, cy
   local function redraw()
+    local w, h = gpu.getResolution()
     cx, cy = sx, sy
     write(buf .. "_ ")
     while ((#buf + sx) // w) + sy > h do
