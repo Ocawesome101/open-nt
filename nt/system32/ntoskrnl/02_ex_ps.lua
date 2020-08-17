@@ -87,10 +87,11 @@ do
     env = env or nt.ke.tcopy(current.data.env)
     local new = {
       coro = coroutine.create( -- the thread itself
-        function()
+        func
+        --[[function()
           local ok, err = xpcall(func, debug.traceback)
           if not ok and err then error(err) end
-        end
+        end]]
       ),
       pid = last,                               -- process/thread ID
       parent = cur,                             -- parent thread's PID
