@@ -21,7 +21,7 @@ local mounts = fs.mounts()
 
 for k, v in require("component").list("filesystem") do
   if not mounts[k] then
-    fs.mount(k)
+    mounts[k] = fs.mount(k)
   end
 end
 
