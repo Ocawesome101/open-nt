@@ -1,4 +1,5 @@
------------------------------ OpenNT tasklist.lua ------------------------------
+------------------------------- OpenNT automnt.lua -----------------------------
+-- Automatically mount attached filesystems and unmount removed ones.         --
 -- Copyright (C) 2020 Ocawesome101                                            --
 --                                                                            --
 -- This program is free software: you can redistribute it and/or modify       --
@@ -15,9 +16,20 @@
 -- along with this program.  If not, see <https://www.gnu.org/licenses/>.     --
 --------------------------------------------------------------------------------
 
-local ps = require("ex.ps")
+local fs = require("fs")
+local mounts = fs.mounts()
 
-for n, pid in pairs(ps.threads()) do
-  local info = ps.info(pid)
-  print(string.format("%4d | %s", pid, info.name))
+for k, v in require("component").list("filesystem") do
+  if not mounts[k] then
+    fs.mount(k)
+  end
+end
+
+while true do
+  local sig, addr, ctype = coroutine.yield()
+  if sig == "component_added" and ctype == "filesystem" then
+    mounts[addr] = fs.mount(addr)
+  elseif sig == "component_removed" and ctype == "filesystem" then
+    if mounts[addr] then fs.unmount(mounts[addr]) mounts[addr] = nil end
+  end
 end

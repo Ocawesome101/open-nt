@@ -1,4 +1,5 @@
------------------------------ OpenNT tasklist.lua ------------------------------
+--------------------------------- OpenNT sc.lua --------------------------------
+-- Start and stop services.                                                   --
 -- Copyright (C) 2020 Ocawesome101                                            --
 --                                                                            --
 -- This program is free software: you can redistribute it and/or modify       --
@@ -15,9 +16,17 @@
 -- along with this program.  If not, see <https://www.gnu.org/licenses/>.     --
 --------------------------------------------------------------------------------
 
-local ps = require("ex.ps")
+local cmd = require("cmdlib")
+local svc = require("svc")
 
-for n, pid in pairs(ps.threads()) do
-  local info = ps.info(pid)
-  print(string.format("%4d | %s", pid, info.name))
+local args, opts = cmd.parse(...)
+
+if #args < 2 then
+  error("Missing parameter", 0)
 end
+
+if not svc[args[1]] then
+  error("Invalid argument", 0)
+end
+
+svc[args[1]](args[2], true)

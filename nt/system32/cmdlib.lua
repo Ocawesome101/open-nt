@@ -22,7 +22,7 @@ local fs = require("fs")
 os.setenv("PATH", os.getenv("PATH") or "A:/NT/System32;A:/NT/System32/Wbem")
 
 function cmd.expand(str)
-  for match in str:gmatch("%%.-%%") do
+  for match in str:gmatch("%%[^%%]-%%") do
     str = str:gsub(match:gsub("%%", "%%%%"), os.getenv(match:sub(2, -2)))
   end
   return str
@@ -79,32 +79,34 @@ function cmd.execute(c)
   if c:match("^(.):$") then
     if fs.get(c) then
       os.setenv("DRIVE", c)
+      os.setenv("CD", "\\")
       return true
     else
-      error("Drive " .. c .. " was not found", 0)
+      return nil, "Drive " .. c .. " was not found"
     end
   end
   local command = cmd.split(cmd.expand(c))
   local path = os.getenv("PATH")
   local pwd = os.getenv("CD") or "/"
   local exec
-  if fs.exists(command[1]) then
-    exec = command[1]
-  elseif fs.exists(command[1] .. ".lua") then
-    exec = command[1] .. ".lua"
-  elseif fs.exists(pwd .. "/" .. command[1]) then
-    exec = pwd .. "/" .. command[1]
-  elseif fs.exists(pwd .. "/" .. command[1] .. ".lua") then
-    exec = pwd .. "/" .. command[1] .. ".lua"
-  else
-    for ent in path:gmatch("[^;]+") do
-      if fs.exists(ent .. "/" .. command[1]) then
-        exec = ent .. "/" .. command[1]
-        break
-      elseif fs.exists(ent .. "/" .. command[1] .. ".lua") then
-        exec = ent .. "/" .. command[1] .. ".lua"
-        break
-      end
+  for ent in path:gmatch("[^;]+") do
+    if fs.exists(ent .. "/" .. command[1]) then
+      exec = ent .. "/" .. command[1]
+      break
+    elseif fs.exists(ent .. "/" .. command[1] .. ".lua") then
+      exec = ent .. "/" .. command[1] .. ".lua"
+      break
+    end
+  end
+  if not exec then
+    if fs.exists(command[1]) then
+      exec = command[1]
+    elseif fs.exists(command[1] .. ".lua") then
+      exec = command[1] .. ".lua"
+    elseif fs.exists(pwd .. "/" .. command[1]) then
+      exec = pwd .. "/" .. command[1]
+    elseif fs.exists(pwd .. "/" .. command[1] .. ".lua") then
+      exec = pwd .. "/" .. command[1] .. ".lua"
     end
   end
   if not exec then
@@ -119,6 +121,10 @@ function cmd.execute(c)
     return nil, ret
   end
   return true
+end
+
+if fs.exists("A:/Autoexec.lua") then
+  cmd.execute("A:/Autoexec.lua")
 end
 
 return cmd

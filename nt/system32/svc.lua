@@ -1,4 +1,5 @@
--------------------------------- OpenNT cmd.lua --------------------------------
+--------------------------------- OpenNT svc.lua -------------------------------
+-- Service management library.                                                --
 -- Copyright (C) 2020 Ocawesome101                                            --
 --                                                                            --
 -- This program is free software: you can redistribute it and/or modify       --
@@ -15,45 +16,60 @@
 -- along with this program.  If not, see <https://www.gnu.org/licenses/>.     --
 --------------------------------------------------------------------------------
 
+local ps = require("ex.ps")
 local fs = require("fs")
 
--- set up stdio
-do
-  if io.tmp_stdio then
-    io.tmp_stdio.stdout:write("\nSetting standard I/O....\n\n")
-    io.input(io.tmp_stdio.stdin)
-    io.output(io.tmp_stdio.stdout)
-    io.tmp_stdio = nil
+local svc = {}
+local running = {}
+
+local dir = os.getenv("SVCDIR") or "A:/NT/System32/Services/"
+
+function svc.start(sv, iscmd)
+  checkArg(1, sv, "string")
+  checkArg(2, iscmd, "boolean", "nil")
+  if iscmd and running[sv] then
+    error("Service is already running", 0)
+  else
+    if running[sv] then return true end
+    local exec = assert(loadfile((fs.concat(dir, sv .. ".lua"))))
+    running[exec] = ps.spawn(exec, sv)
+    return true
   end
 end
 
-os.setenv("DRIVE", os.getenv("DRIVE") or "A:")
-os.setenv("CD", os.getenv("CD") or "\\")
-local cmd = require("cmdlib")
-
--- prompt replacements
-local prep = {
-  ["%$[Pp]"] = function() return (os.getenv("DRIVE") or "A:") .. (os.getenv("CD") or "\\"):upper():gsub("[/\\]+", "\\") end,
-  ["%$[Gg]"] = function() return ">" end
-}
-local function parseprompt(ppt)
-  for pat, rep in pairs(prep) do
-    ppt = ppt:gsub(pat, rep())
-  end
-  return ppt
-end
-
-os.setenv("PROMPT", os.getenv("PROMPT") or "$p$g")
-
-while true do
-  local ppt = os.getenv("PROMPT") or "$P$G "
-  io.write(parseprompt(ppt))
-  local line = io.read():gsub("\n", "")
-  if #line > 0 then
-    local ok, err = cmd.execute(line)
-    if not ok then
-      print(err)
+function svc.stop(sv, iscmd)
+  checkArg(1, sv, "string")
+  checkArg(2, iscmd, "boolean", "nil")
+  if not running[sv] then
+    if iscmd then
+      error("Service is not running", 0)
+    else
+      return true
     end
-    io.write("\n")
+  else
+    local ok, err = ps.kill(running[sv])
+    if not ok then
+      error(err, 0)
+    end
+    return true
   end
 end
+
+function svc.running(_, iscmd)
+  checkArg(2, iscmd, "boolean", "nil")
+  local ret = {}
+  for k,v in pairs(running) do
+    ret[k] = true
+  end
+  if iscmd then
+    print("Pid  Name")
+    print("---  -----")
+    for k, v in pairs(ret) do
+      print(string.format("%3d  %s", running[k], k))
+    end
+  else
+    return ret
+  end
+end
+
+return svc

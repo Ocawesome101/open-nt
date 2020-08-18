@@ -51,12 +51,16 @@ for i=1, #files, 1 do
   end
 end
 
+local function pad(s, l)
+  return s .. (" "):rep(l - #s)
+end
+
 maxlen = maxlen + 5
 for i=1, #files, 1 do
   local name, ext = files[i]:match("(.+)%.(.+)")
   name = name or files[i]
   ext = ext or "<DIR>"
-  files[i] = (string.format("%s%"..(maxlen-#files[i]).."s  %"..(ext == "<DIR>" and 20 or 24).."s", name:upper(), ext:upper(), lastModified(files[i])))
+  files[i] = (string.format("%s%s  %s", pad(name:upper(), maxlen), pad(ext:upper(), 6), lastModified(files[i])))
 end
 
 local w, h = require("component").gpu.getResolution()

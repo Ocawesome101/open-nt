@@ -15,6 +15,7 @@
 -- along with this program.  If not, see <https://www.gnu.org/licenses/>.     --
 --------------------------------------------------------------------------------
 
+local plib = require("pathlib")
 local fs = require("fs")
 local args = {...}
 
@@ -23,14 +24,20 @@ if #args == 0 then
   return
 end
 
-local d = args[1]:gsub("[/\\]+", "\\")
-
-if d:sub(1,1) ~= "/" and d:sub(1,1) ~= "\\" then
-  d = fs.concat(os.getenv("CD"), d)
+local hax = args[1]:match("^(.:)$")
+if hax then
+  if hax == os.getenv("DRIVE") then
+    os.setenv("CD", "\\")
+    return
+  end
 end
 
+local drv, path = plib.resolve(plib.localize(args[1]))
+
+local d = fs.concat(drv, path)
+
 if fs.exists(d) and fs.isDirectory(d) then
-  os.setenv("CD", d)
+  os.setenv("CD", path)
 else
-  error("Invalid directory")
+  error(d .. ": Invalid directory", 0)
 end

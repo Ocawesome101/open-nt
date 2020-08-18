@@ -53,18 +53,19 @@ do
   }
 
   sb._G = sb
-  sb.table.copy = nt.ke.tcopy
-  sb.package.loaded.computer = nt.ke.tcopy(computer)
+  sb.table.copy               = nt.ke.tcopy
+  sb.package.loaded.computer  = nt.ke.tcopy(computer)
   sb.package.loaded.computer.pullSignal = sb.coroutine.yield
   sb.package.loaded.component = nt.ke.tcopy(component)
-  sb.package.loaded.unicode = nt.ke.tcopy(unicode)
-  sb.package.loaded.win32 = nt.ke.tcopy(nt.win32)
-  sb.package.loaded["ex.ps"] = nt.ke.tcopy(nt.ex.ps)
-  sb.package.loaded["ex.cm"] = nt.ke.tcopy(nt.ex.cm)
-  sb.package.loaded["ex.ob"] = nt.ke.tcopy(nt.ex.ob)
-  sb.package.loaded.buffer   = nt.ke.tcopy(nt.ex.io)
-  sb.package.loaded["ex.lpc"]= nt.ke.tcopy(nt.ex.lpc)
-  sb.package.loaded.fs = nt.ke.tcopy(nt.ke.fs)
+  sb.package.loaded.unicode   = nt.ke.tcopy(unicode)
+  sb.package.loaded.win32     = nt.ke.tcopy(nt.win32)
+  sb.package.loaded["ex.ps"]  = nt.ke.tcopy(nt.ex.ps)
+  sb.package.loaded["ex.cm"]  = nt.ke.tcopy(nt.ex.cm)
+  sb.package.loaded["ex.ob"]  = nt.ke.tcopy(nt.ex.ob)
+  sb.package.loaded.buffer    = nt.ke.tcopy(nt.ex.io)
+  sb.package.loaded["ex.lpc"] = nt.ke.tcopy(nt.ex.lpc)
+  sb.package.loaded.fs        = nt.ke.tcopy(nt.ke.fs)
+  sb.package.loaded.ntconfig  = nt.ke.tcopy(nt.ki.flags)
   local loaded = sb.package.loaded
   function sb.require(name)
     checkArg(1, name, "string")

@@ -138,6 +138,14 @@ do
     return nil, "Too many drives mounted"
   end
 
+  function fs.mounts()
+    local d = {}
+    for k,v in pairs(drives) do
+      d[v.address] = k
+    end
+    return d
+  end
+
   function fs.unmount(drv)
     checkArg(1, drv, "string")
     drv = drv:sub(1, 1):upper()
@@ -214,7 +222,7 @@ do
   end
 
   function fs.concat(...)
-    return table.concat(table.pack(...), "\\"):gsub("([/\\]+)", "\\")
+    return (table.concat(table.pack(...), "\\"):gsub("([/\\]+)", "\\"))
   end
 
   nt.ke.fs = fs

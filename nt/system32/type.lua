@@ -16,11 +16,13 @@
 -- along with this program.  If not, see <https://www.gnu.org/licenses/>.     --
 --------------------------------------------------------------------------------
 
+local fs = require("fs")
+
 local args = {...}
 
 local drv, path = require("pathlib").resolve(args[1])
 
-local handle = io.open(path)
+local handle = io.open(fs.concat(drv, path))
 if not handle then
   error("Invalid file", 0)
 end

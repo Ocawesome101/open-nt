@@ -159,9 +159,6 @@ do
     if not threads[pid] then
       return nil, "no such thread"
     end
-    if threads[pid].owner ~= kernel.users.uid() and kernel.users.uid() ~= 0 then
-      return nil, "permission denied"
-    end
     local msg = {
       "signal",
       cur,
