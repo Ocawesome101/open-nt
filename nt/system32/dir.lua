@@ -39,7 +39,14 @@ local function lastModified(f)
   return os.date("%x %r", lm)
 end
 
-local files = fs.list(fs.concat(drv, path))
+local fullpath = fs.concat(drv, path)
+if not fs.exists(fullpath) then
+  error("File not found", 0)
+elseif not fs.isDirectory(fullpath) then
+  error("Invalid directory", 0)
+end
+
+local files = fs.list(fullpath)
 if not files then
   error("File not found", 0)
 end
@@ -59,7 +66,7 @@ maxlen = maxlen + 5
 for i=1, #files, 1 do
   local name, ext = files[i]:match("(.+)%.(.+)")
   name = name or files[i]
-  ext = ext or "<DIR>"
+  ext = ext or fs.isDirectory(fs.concat(drv, path, files[i])) and "<DIR>" or ""
   files[i] = (string.format("%s%s  %s", pad(name:upper(), maxlen), pad(ext:upper(), 6), lastModified(files[i])))
 end
 

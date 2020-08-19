@@ -20,7 +20,6 @@ local fs = require("fs")
 -- set up stdio
 do
   if io.tmp_stdio then
-    io.tmp_stdio.stdout:write("\nSetting standard I/O....\n\n")
     io.input(io.tmp_stdio.stdin)
     io.output(io.tmp_stdio.stdout)
     io.tmp_stdio = nil
@@ -44,6 +43,8 @@ local function parseprompt(ppt)
 end
 
 os.setenv("PROMPT", os.getenv("PROMPT") or "$p$g")
+
+print("OpenNT is copyright (c) 2020 Ocawesome101 under the GNU General Public License, version 3.")
 
 while true do
   local ppt = os.getenv("PROMPT") or "$P$G "
