@@ -1,4 +1,4 @@
---------------------------------- OpenNT cd.lua --------------------------------
+------------------------------- OpenNT drives.lua ------------------------------
 -- Copyright (C) 2020 Ocawesome101                                            --
 --                                                                            --
 -- This program is free software: you can redistribute it and/or modify       --
@@ -15,29 +15,8 @@
 -- along with this program.  If not, see <https://www.gnu.org/licenses/>.     --
 --------------------------------------------------------------------------------
 
-local plib = require("pathlib")
 local fs = require("fs")
-local args = {...}
 
-if #args == 0 then
-  print(os.getenv("DRIVE") .. os.getenv("CD"):upper():gsub("[/\\]+", "\\"))
-  return
-end
-
-local hax = args[1]:match("^(.:)$")
-if hax then
-  if hax == os.getenv("DRIVE") then
-    os.setenv("CD", "\\")
-    return
-  end
-end
-
-local drv, path = plib.resolve(args[1])
-
-local d = fs.concat(drv, path)
-
-if fs.exists(d) and fs.isDirectory(d) then
-  os.setenv("CD", path)
-else
-  error(d .. ": Invalid directory", 0)
+for k, v in pairs(fs.mounts()) do
+  print(v .. ":\\")
 end

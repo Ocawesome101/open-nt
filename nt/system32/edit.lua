@@ -17,6 +17,7 @@
 --------------------------------------------------------------------------------
 
 local cmd = require("cmdlib")
+local plib = require("pathlib")
 local fs = require("fs")
 local gpu = require("component").gpu
 local computer = require("computer")
@@ -28,12 +29,11 @@ local scroll = {
 }
 local w, h = gpu.getResolution()
 local args = cmd.parse(...)
-local fname
+local drv, fname
 
 if args[1] then
-  local drv
-  drv, fname = require("pathlib").resolve(args[1])
-  local f = io.open(args[1])
+  drv, fname = plib.resolve(args[1])
+  local f = io.open(fs.concat(drv, fname))
   if not f then
     goto cont
   end
@@ -145,7 +145,7 @@ handlers[61] = function() -- F3
   gpu.setBackground(0x000000)
   gpu.setForeground(0xFFFFFF)
   gpu.fill(1, 1, w, h, " ")
-  local f, e = io.open(fname, "w")
+  local f, e = io.open(fs.concat(drv, fname), "w")
   if not f then
     error("Failed saving file: " .. e, 0)
   end
@@ -165,7 +165,7 @@ while run do
     if handlers[code] then
       handlers[code]()
     elseif char >= 32 and char < 127 then
-      buf[line] = buf[line]:sub(1, cx + scroll.w) .. string.char(char) .. buf[line]:sub(cx + scroll.w)
+      buf[line] = buf[line]:sub(1, cx + scroll.w) .. string.char(char) .. buf[line]:sub(cx + scroll.w + 1)
       handlers[205]()
     end
   end
