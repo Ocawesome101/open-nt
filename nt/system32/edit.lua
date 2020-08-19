@@ -47,7 +47,7 @@ else
 end
 ::cont::
 
-local bgcol = 0x0000AA
+local bgcol = 0x000088
 local fgcol = 0xAAAAAA
 if gpu.getDepth() > 1 then
   gpu.setBackground(bgcol)
